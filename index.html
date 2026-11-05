@@ -207,6 +207,34 @@ h2.ttl{font-size:26px;font-weight:900;margin:4px 0}
 .tabs input{display:none}
 .tabs label.on{background:var(--purple);color:#fff}
 
+/* store & wardrobe */
+.btn:disabled{opacity:.6;cursor:default}
+.btn.store{background:linear-gradient(90deg,#22c55e,#00b8d4);color:#fff;box-shadow:0 5px 0 #0e8a7a}
+.btn.ward{background:linear-gradient(90deg,#7c4dff,#ff4fa3);color:#fff;box-shadow:0 5px 0 #5a2fd6}
+.topbar .ttl{flex:1}
+.stop{display:flex;justify-content:center;padding:28px 0 8px;margin:4px 0 0}
+.stop .owl-wrap{width:120px;height:130px;cursor:pointer}
+.stop.sticky{position:sticky;top:6px;z-index:3;background:rgba(255,255,255,.82);border-radius:24px;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 4px 0 rgba(45,34,80,.08)}
+.shopgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:12px}
+.scard{background:#fff;border-radius:22px;padding:12px;text-align:center;box-shadow:0 6px 0 rgba(45,34,80,.1);display:flex;flex-direction:column;align-items:center;gap:6px}
+.shead{font-weight:800;font-size:17px;align-self:stretch;text-align:right}
+.sowl{width:96px;height:104px;margin-top:20px}
+.sname{font-weight:800;font-size:18px}
+.sprog{display:flex;gap:5px;direction:rtl}
+.sprog i{width:10px;height:10px;border-radius:50%;background:#e6e0ff}
+.sprog i.on{background:var(--purple)}
+.scard .btn{width:100%;flex:0 0 auto;margin-top:auto}
+.sdone{font-weight:700;color:var(--ink2);padding:24px 0;font-size:16px;line-height:1.5}
+.sdone b{font-size:46px;display:block}
+.wsec{background:#fff;border-radius:20px;padding:10px 12px 12px;margin-top:12px;box-shadow:0 4px 0 rgba(45,34,80,.08)}
+.wtitle{font-weight:800;font-size:17px;margin-bottom:8px}
+.wrow{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px}
+.wtile{border:3px solid #e6e0ff;background:var(--soft);border-radius:16px;height:96px;padding:6px 4px 4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:28px}
+.wtile svg{width:100%;height:56px;overflow:visible}
+.wtile small{font-size:11px;font-weight:700;line-height:1.15}
+.wtile.on{border-color:var(--purple);background:#ece4ff;box-shadow:0 0 0 3px rgba(124,77,255,.25)}
+.wtile.lock{opacity:.4;background:#f3f3f3;font-size:22px}
+
 @media (min-width:700px){
   .app{padding-top:22px}
   .qcard{padding:22px}
@@ -248,6 +276,8 @@ h2.ttl{font-size:26px;font-weight:900;margin:4px 0}
   </section>
   <section id="end" class="screen"></section>
   <section id="stickers" class="screen"></section>
+  <section id="store" class="screen"></section>
+  <section id="wardrobe" class="screen"></section>
 </main>
 <div id="modal" class="modal hidden"><div class="mbox" id="mbox"></div></div>
 
@@ -263,7 +293,7 @@ const digits=n=>[Math.floor(n/100)%10,Math.floor(n/10)%10,n%10];
 
 const STORE_KEY='mathQuest3_v1';
 function loadData(){try{return JSON.parse(localStorage.getItem(STORE_KEY)||'{}')}catch(e){return{}}}
-let DATA=Object.assign({best:{},coins:0,stickers:[],tables:[1,2,3,4,5,6,7,8,9,10],sound:true,recent:{}},loadData());
+let DATA=Object.assign({best:{},coins:0,stickers:[],tables:[1,2,3,4,5,6,7,8,9,10],sound:true,recent:{},owned:[],outfit:{}},loadData());
 function save(){try{localStorage.setItem(STORE_KEY,JSON.stringify(DATA))}catch(e){}}
 const tables=()=>DATA.tables&&DATA.tables.length?DATA.tables:[1,2,3,4,5,6,7,8,9,10];
 const tab=(min=1)=>{const t=tables().filter(x=>x>=min);return t.length?P(t):P([2,3,4,5])};
@@ -680,18 +710,87 @@ function loop(){cx.clearRect(0,0,cv.width,cv.height);parts.forEach(p=>{p.vy+=.45
   cx.save();cx.translate(p.x,p.y);cx.rotate(p.r);cx.fillStyle=p.c;cx.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);cx.restore()});
   parts=parts.filter(p=>p.y<cv.height+40&&p.life<260);raf=parts.length?requestAnimationFrame(loop):(cx.clearRect(0,0,cv.width,cv.height),null);}
 
+/* ================== owl outfits (store items) ================== */
+const starPts=(cx,cy,R,r)=>{const p=[];for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,q=i%2?r:R;p.push((cx+q*Math.cos(a)).toFixed(1)+','+(cy+q*Math.sin(a)).toFixed(1))}return p.join(' ')};
+const bodyHW=y=>{const d=(y-72)/48;return d>=1?0:44*Math.sqrt(1-d*d)};
+const shirt=(c,extra='')=>`<path d="M17 82 L46 80 Q60 94 74 80 L103 82 A44 48 0 1 1 17 82 Z" fill="${c}"/>${extra}`;
+const stripes=(ys,c,w)=>ys.map(y=>{const h=bodyHW(y)-1;return `<line x1="${(60-h).toFixed(1)}" y1="${y}" x2="${(60+h).toFixed(1)}" y2="${y}" stroke="${c}" stroke-width="${w}"/>`}).join('');
+const shoe=(x,c,sole,extra='')=>`<path d="M${x-11} 125 Q${x-12} 113 ${x} 113 Q${x+12} 113 ${x+12} 125 Z" fill="${c}"/><rect x="${x-12.5}" y="123" width="25" height="4.5" rx="2.2" fill="${sole}"/>${extra}`;
+const pair=f=>f(46)+f(74);
+const lenses=(f)=>f(43)+f(77);
+const arms=c=>`<path d="M26 50 L17 46 M94 50 L103 46" stroke="${c}" stroke-width="3" stroke-linecap="round"/>`;
+const heart=(x,y)=>`M${x} ${y+14} C${x-22} ${y}, ${x-13} ${y-19}, ${x} ${y-7} C${x+13} ${y-19}, ${x+22} ${y}, ${x} ${y+14} Z`;
+const CATS=[
+  {id:'hat',name:'כובעים',icon:'🎩',vb:'10 -28 100 66'},
+  {id:'glasses',name:'משקפיים',icon:'👓',vb:'14 32 92 44'},
+  {id:'shirt',name:'חולצות',icon:'👕',vb:'12 70 96 54'},
+  {id:'shoes',name:'נעליים',icon:'👟',vb:'28 100 64 36'},
+  {id:'acc',name:'אביזרים',icon:'🎀',vb:'20 20 100 90'},
+  {id:'color',name:'צבעים',icon:'🎨',vb:'0 -10 120 140'}];
+const DEF_PAL={ear:'#6a3de8',wing:'#5a2fd6',body:'#7c4dff',belly:'#ddd2ff',feather:'#b39dff'};
+const PRICES=[30,60,100,150,250];
+const ITEMS=[
+  /* hats */
+  {cat:'hat',name:'כובע מצחייה',svg:`<path d="M32 32 Q32 4 60 4 Q88 4 88 32 Z" fill="#ff5d73"/><rect x="32" y="27" width="56" height="5" fill="#d93a52"/><path d="M80 29 Q104 25 112 33 Q100 36 80 34 Z" fill="#d93a52"/><circle cx="60" cy="5" r="3" fill="#d93a52"/>`},
+  {cat:'hat',name:'כובע מסיבה',svg:`<path d="M44 30 L62 -14 L78 30 Z" fill="#22c55e"/><circle cx="56" cy="18" r="3" fill="#ffc928"/><circle cx="68" cy="20" r="3" fill="#ff4fa3"/><circle cx="62" cy="4" r="3" fill="#ffc928"/><circle cx="51" cy="27" r="2.5" fill="#fff"/><circle cx="71" cy="27" r="2.5" fill="#fff"/><path d="M42 30 L80 30" stroke="#ff4fa3" stroke-width="4" stroke-linecap="round"/><circle cx="62" cy="-14" r="5" fill="#ff4fa3"/>`},
+  {cat:'hat',name:'כובע בוקרים',svg:`<path d="M38 22 Q38 -2 50 0 Q60 6 70 0 Q82 -2 82 22 Z" fill="#a0612b"/><rect x="38" y="15" width="44" height="5" fill="#5b3a1a"/><path d="M12 20 Q60 38 108 20 Q108 30 60 34 Q12 30 12 20 Z" fill="#8a4f1f"/>`},
+  {cat:'hat',name:'כובע קוסם',svg:`<path d="M38 27 Q50 12 54 -10 Q58 -26 72 -22 Q64 -14 66 0 Q70 16 82 27 Z" fill="#6d28d9"/><ellipse cx="60" cy="28" rx="36" ry="7" fill="#4c1d95"/><polygon points="${starPts(60,12,6,2.5)}" fill="#ffc928"/><polygon points="${starPts(62,-6,4,1.7)}" fill="#ffc928"/><circle cx="70" cy="18" r="1.8" fill="#fff"/><circle cx="52" cy="22" r="1.5" fill="#fff"/>`},
+  {cat:'hat',name:'כתר מלכותי',svg:`<path d="M34 30 L32 4 L46 16 L60 -4 L74 16 L88 4 L86 30 Z" fill="#ffc928" stroke="#e0a800" stroke-width="2" stroke-linejoin="round"/><circle cx="32" cy="4" r="3.5" fill="#ffc928" stroke="#e0a800" stroke-width="1.5"/><circle cx="60" cy="-4" r="3.5" fill="#ffc928" stroke="#e0a800" stroke-width="1.5"/><circle cx="88" cy="4" r="3.5" fill="#ffc928" stroke="#e0a800" stroke-width="1.5"/><circle cx="60" cy="20" r="4.5" fill="#ff3d5a"/><circle cx="45" cy="23" r="3" fill="#3b82f6"/><circle cx="75" cy="23" r="3" fill="#22c55e"/>`},
+  /* glasses */
+  {cat:'glasses',name:'משקפיים עגולים',svg:lenses(x=>`<circle cx="${x}" cy="54" r="17" fill="rgba(160,210,255,.18)" stroke="#2d2250" stroke-width="3"/>`)+`<path d="M58 50 Q60 47 62 50" stroke="#2d2250" stroke-width="3" fill="none"/>`+arms('#2d2250')},
+  {cat:'glasses',name:'משקפי שמש',svg:lenses(x=>`<rect x="${x-17}" y="42" width="34" height="25" rx="11" fill="#14102a" opacity=".9"/><path d="M${x-10} 48 L${x-4} 48" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity=".7"/>`)+`<path d="M58 49 Q60 46 62 49" stroke="#14102a" stroke-width="3" fill="none"/>`+arms('#14102a')},
+  {cat:'glasses',name:'משקפי לבבות',svg:lenses(x=>`<path d="${heart(x,54)}" fill="rgba(255,79,163,.5)" stroke="#e8457d" stroke-width="3" stroke-linejoin="round"/>`)+arms('#e8457d')},
+  {cat:'glasses',name:'משקפי כוכבים',svg:lenses(x=>`<polygon points="${starPts(x,55,21,10)}" fill="rgba(255,201,40,.5)" stroke="#e0a800" stroke-width="2.5" stroke-linejoin="round"/>`)+arms('#e0a800')},
+  {cat:'glasses',name:'משקפי זהב',svg:lenses(x=>`<circle cx="${x}" cy="54" r="17" fill="rgba(255,201,40,.2)" stroke="#e0a800" stroke-width="4"/>`+[-150,-90,-30].map((a,i)=>`<circle cx="${(x+17*Math.cos(a*Math.PI/180)).toFixed(1)}" cy="${(54+17*Math.sin(a*Math.PI/180)).toFixed(1)}" r="2.6" fill="${['#ff3d5a','#3b82f6','#22c55e'][i]}"/>`).join(''))+`<path d="M58 50 Q60 46 62 50" stroke="#e0a800" stroke-width="3.5" fill="none"/>`+arms('#e0a800')},
+  /* shirts */
+  {cat:'shirt',name:'חולצה אדומה',svg:shirt('#ff5d73',`<rect x="66" y="94" width="12" height="10" rx="2" fill="#d93a52"/>`)},
+  {cat:'shirt',name:'חולצת מלחים',svg:shirt('#ffffff',stripes([95,103,111],'#1e66d0',4))+`<path d="M46 80 Q60 94 74 80" stroke="#ff3d5a" stroke-width="3" fill="none"/>`},
+  {cat:'shirt',name:'חולצת כדורגל',svg:shirt('#22c55e',stripes([84],'#fff',3)+`<text x="60" y="111" font-size="17" font-weight="900" text-anchor="middle" fill="#fff" font-family="Rubik,sans-serif" direction="ltr">10</text>`)},
+  {cat:'shirt',name:'חליפת גיבור-על',svg:shirt('#1e40af',`<circle cx="60" cy="103" r="12" fill="#ff3d5a"/><polygon points="${starPts(60,103.5,10,4.2)}" fill="#ffc928"/>`)},
+  {cat:'shirt',name:'חליפה חגיגית',svg:shirt('#2d2250',`<path d="M48 83 L60 92 L72 83 L66 118 L54 118 Z" fill="#fff"/><circle cx="60" cy="100" r="2" fill="#2d2250"/><circle cx="60" cy="108" r="2" fill="#2d2250"/><path d="M60 89 L52 85 L52 93 Z M60 89 L68 85 L68 93 Z" fill="#ff3d5a"/>`)},
+  /* shoes */
+  {cat:'shoes',name:'נעלי ספורט',svg:pair(x=>shoe(x,'#3b82f6','#fff',`<path d="M${x-4} 117 L${x+4} 117 M${x-5} 120.5 L${x+5} 120.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>`))},
+  {cat:'shoes',name:'מגפי גשם',svg:pair(x=>`<path d="M${x-9} 127 L${x-9} 111 Q${x-9} 108 ${x-6} 108 L${x+6} 108 Q${x+9} 108 ${x+9} 111 L${x+9} 119 Q${x+13} 120 ${x+13} 127 Z" fill="#ffc928" stroke="#e0a800" stroke-width="1.5" stroke-linejoin="round"/><rect x="${x-10}" y="106" width="20" height="4" rx="2" fill="#e0a800"/>`)},
+  {cat:'shoes',name:'נעלי בלט',svg:pair(x=>shoe(x,'#ffb3d1','#ff4fa3',`<path d="M${x-6} 114 L${x+5} 106 M${x+6} 114 L${x-5} 106" stroke="#ff4fa3" stroke-width="2" stroke-linecap="round"/>`))},
+  {cat:'shoes',name:'גלגיליות',svg:pair(x=>shoe(x,'#a855f7','#5a2fd6',`<circle cx="${x-7}" cy="130.5" r="3.3" fill="#ffc928" stroke="#2d2250" stroke-width="1.2"/><circle cx="${x+7}" cy="130.5" r="3.3" fill="#ffc928" stroke="#2d2250" stroke-width="1.2"/>`))},
+  {cat:'shoes',name:'נעלי זהב',svg:pair(x=>shoe(x,'#ffc928','#e0a800',`<polygon points="${starPts(x+1,119,4.5,1.8)}" fill="#fff"/>`))},
+  /* accessories */
+  {cat:'acc',name:'עניבת פרפר',vb:'40 72 40 28',svg:`<path d="M60 86 L47 79 L47 93 Z M60 86 L73 79 L73 93 Z" fill="#ff4fa3" stroke="#c2366f" stroke-width="1.5" stroke-linejoin="round"/><circle cx="60" cy="86" r="3.5" fill="#c2366f"/>`},
+  {cat:'acc',name:'פרח ורוד',vb:'74 18 28 28',svg:[0,72,144,216,288].map(a=>`<circle cx="${(88+6*Math.cos(a*Math.PI/180)).toFixed(1)}" cy="${(32+6*Math.sin(a*Math.PI/180)).toFixed(1)}" r="5.5" fill="#ff8fc8"/>`).join('')+`<circle cx="88" cy="32" r="4" fill="#ffc928"/>`},
+  {cat:'acc',name:'צעיף חם',vb:'18 72 84 46',svg:`<path d="M68 90 L80 88 L86 112 L74 114 Z" fill="#00a3bd"/><path d="M71 100 L83 98 M73 107 L85 105" stroke="#fff" stroke-width="2.5"/><path d="M22 76 Q60 94 98 76 L99 85 Q60 103 21 85 Z" fill="#00b8d4"/><path d="M30 82 L30 88 M44 87 L44 93 M76 87 L76 93 M90 82 L90 88" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>`},
+  {cat:'acc',name:'מדליית זהב',vb:'38 74 44 42',svg:`<path d="M44 78 L60 100 L76 78" fill="none" stroke="#3b82f6" stroke-width="6" stroke-linejoin="round"/><circle cx="60" cy="104" r="9" fill="#ffc928" stroke="#e0a800" stroke-width="2"/><polygon points="${starPts(60,104.5,5,2.2)}" fill="#fff"/>`},
+  {cat:'acc',name:'שרביט קסמים',vb:'94 46 36 58',svg:`<path d="M102 98 L116 64" stroke="#2d2250" stroke-width="4" stroke-linecap="round"/><polygon points="${starPts(117,60,10,4)}" fill="#ffc928" stroke="#e0a800" stroke-width="1.5" stroke-linejoin="round"/><circle cx="104" cy="54" r="1.8" fill="#ffc928"/><circle cx="126" cy="72" r="1.5" fill="#ffc928"/>`},
+  /* owl colors */
+  {cat:'color',name:'ורוד',svg:'',pal:{ear:'#e03d8f',wing:'#c92a7a',body:'#ff5fa8',belly:'#ffe0ef',feather:'#ff9fca'}},
+  {cat:'color',name:'תכלת',svg:'',pal:{ear:'#1f8fd6',wing:'#1878b8',body:'#38b6ff',belly:'#dff3ff',feather:'#96d5ff'}},
+  {cat:'color',name:'ירוק',svg:'',pal:{ear:'#1fa35a',wing:'#168a4a',body:'#2ecc71',belly:'#dcfce7',feather:'#8fe3b1'}},
+  {cat:'color',name:'כתום',svg:'',pal:{ear:'#e06a00',wing:'#c45a00',body:'#ff8a1f',belly:'#ffedd5',feather:'#ffbd80'}},
+  {cat:'color',name:'קשת בענן',svg:'',pal:{ear:'#e03d8f',wing:'#7c4dff',body:'rainbow',belly:'#fff6d6',feather:'#ffc46b'}}
+].map((it,i,a)=>{const k=a.slice(0,i).filter(x=>x.cat===it.cat).length;return Object.assign(it,{id:it.cat+(k+1),price:PRICES[k]})});
+const ITEM=Object.fromEntries(ITEMS.map(i=>[i.id,i]));
+const CAT=Object.fromEntries(CATS.map(c=>[c.id,c]));
+const itemSVG=i=>i.cat==='color'?owlSVG({color:i.id}):`<svg viewBox="${i.vb||CAT[i.cat].vb}" aria-hidden="true">${i.svg}</svg>`;
+
 /* ================== mascot ================== */
-const owlSVG=()=>`<svg viewBox="0 0 120 130" class="owl" aria-hidden="true"><g class="owl-b">
-<path d="M28 36 L32 8 L52 27 Z" fill="#6a3de8"/><path d="M92 36 L88 8 L68 27 Z" fill="#6a3de8"/>
-<ellipse class="wing" cx="19" cy="80" rx="11" ry="24" fill="#5a2fd6"/><ellipse class="wing" cx="101" cy="80" rx="11" ry="24" fill="#5a2fd6"/>
-<ellipse cx="60" cy="72" rx="44" ry="48" fill="#7c4dff"/><ellipse cx="60" cy="90" rx="28" ry="27" fill="#ddd2ff"/>
-<path d="M47 84 q5 5 10 0 M63 84 q5 5 10 0 M55 96 q5 5 10 0" stroke="#b39dff" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+let owlN=0;
+const owlSVG=(o=DATA.outfit||{})=>{const w=c=>o[c]&&ITEM[o[c]]?ITEM[o[c]].svg:'';
+const p=o.color&&ITEM[o.color]?ITEM[o.color].pal:DEF_PAL;let defs='',body=p.body;
+if(body==='rainbow'){const gid='rb'+(++owlN);body=`url(#${gid})`;
+  defs=`<defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">${['#ff4f6d','#ff9f1c','#ffd23f','#3ddc84','#38b6ff','#9b5cff'].map((c,i)=>`<stop offset="${i/5}" stop-color="${c}"/>`).join('')}</linearGradient></defs>`}
+return `<svg viewBox="0 0 120 130" class="owl" aria-hidden="true">${defs}<g class="owl-b">
+<path d="M28 36 L32 8 L52 27 Z" fill="${p.ear}"/><path d="M92 36 L88 8 L68 27 Z" fill="${p.ear}"/>
+<ellipse class="wing" cx="19" cy="80" rx="11" ry="24" fill="${p.wing}"/><ellipse class="wing" cx="101" cy="80" rx="11" ry="24" fill="${p.wing}"/>
+<ellipse cx="60" cy="72" rx="44" ry="48" fill="${body}"/><ellipse cx="60" cy="90" rx="28" ry="27" fill="${p.belly}"/>
+<path d="M47 84 q5 5 10 0 M63 84 q5 5 10 0 M55 96 q5 5 10 0" stroke="${p.feather}" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+${w('shirt')}
 <g class="eyes"><circle cx="43" cy="54" r="16" fill="#fff"/><circle cx="77" cy="54" r="16" fill="#fff"/>
 <g class="pup"><circle cx="45" cy="56" r="8" fill="#2d2250"/><circle cx="75" cy="56" r="8" fill="#2d2250"/><circle cx="48" cy="53" r="2.7" fill="#fff"/><circle cx="78" cy="53" r="2.7" fill="#fff"/></g></g>
+${w('glasses')}
 <path d="M53 68 L67 68 L60 78 Z" fill="#ffb300"/>
 <circle cx="27" cy="72" r="6" fill="#ff8fab" opacity=".75"/><circle cx="93" cy="72" r="6" fill="#ff8fab" opacity=".75"/>
 <ellipse cx="46" cy="121" rx="9" ry="5" fill="#ffb300"/><ellipse cx="74" cy="121" rx="9" ry="5" fill="#ffb300"/>
-<path d="M34 16 L60 4 L86 16 L60 28 Z" fill="#2d2250"/><path d="M86 16 L86 30" stroke="#ffc928" stroke-width="3"/><circle cx="86" cy="32" r="3.5" fill="#ffc928"/></g></svg>`;
+${w('shoes')}${w('acc')}
+${w('hat')||'<path d="M34 16 L60 4 L86 16 L60 28 Z" fill="#2d2250"/><path d="M86 16 L86 30" stroke="#ffc928" stroke-width="3"/><circle cx="86" cy="32" r="3.5" fill="#ffc928"/>'}</g></svg>`};
 function owlMood(el,m){const o=el.querySelector('.owl');if(!o)return;o.classList.remove('happy','sad','think');void o.offsetWidth;if(m)o.classList.add(m)}
 const MSG={good:['מעולה! 🌟','בול! 🎯','כל הכבוד! 👏','וואו, איזה מוח! 🧠','פצצה! 💥','מדהים! 🚀','נהדר! ✨','אלופים! 🏆','יש! 🎉'],
   retry:['כמעט! ננסה שוב? 💪','לא נורא – עוד ניסיון אחד! 🙂','אולי רמז יעזור? 💡 אפשר לנסות שוב.'],
@@ -713,11 +812,14 @@ function renderHome(){
    <div class="topics">${TOPICS.map(t=>`<button class="tcard" style="--c:${t.c};--cd:${t.cd}" data-topic="${t.id}">
      <span class="ic">${t.icon}</span><span class="nm">${t.name}</span><span class="sb">${t.sub}</span><div class="st">${starsHTML(DATA.best[t.id]||0)}</div></button>`).join('')}</div>
    <button class="bigbtn" data-topic="mix">🏆 אתגר מסכם – כל הנושאים <span style="font-size:16px">${starsHTML(DATA.best.mix||0)}</span></button>
+   <div class="row"><button class="btn store" id="goStore">🛍️ החנות של ינשופי</button><button class="btn ward" id="goWardrobe">👗 ארון הבגדים</button></div>
    <div class="row"><button class="btn" id="goStickers">🎁 המדבקות שלי</button><button class="btn" id="goSettings">⚙️ הגדרות להורים</button>
    <button class="btn small" id="soundBtn" aria-label="צליל">${DATA.sound?'🔊':'🔇'}</button></div>`;
   $('home').querySelectorAll('[data-topic]').forEach(b=>b.onclick=()=>{SFX.click();startRound(b.dataset.topic)});
   $('goStickers').onclick=()=>{SFX.click();renderStickers();show('stickers')};
   $('goSettings').onclick=()=>{SFX.click();openSettings()};
+  $('goStore').onclick=()=>{SFX.click();renderStore();show('store')};
+  $('goWardrobe').onclick=()=>{SFX.click();renderWardrobe();show('wardrobe')};
   $('soundBtn').onclick=()=>{DATA.sound=!DATA.sound;save();renderHome();SFX.click()};
   $('homeOwl').onclick=()=>{owlMood($('homeOwl'),'happy');SFX.good()};
 }
@@ -867,6 +969,57 @@ function renderStickers(){
    <div class="sgrid">${STICKERS.map(s=>DATA.stickers.includes(s)?`<div>${s}</div>`:'<div class="lock">❓</div>').join('')}</div>`;
   $('stBack').onclick=()=>{renderHome();show('home')};
 }
+/* ================== store & wardrobe ================== */
+const progDots=cat=>`<div class="sprog">${ITEMS.filter(i=>i.cat===cat).map(i=>`<i class="${DATA.owned.includes(i.id)?'on':''}"></i>`).join('')}</div>`;
+function renderStore(msg){
+  const cards=CATS.map(c=>{
+    const next=ITEMS.find(i=>i.cat===c.id&&!DATA.owned.includes(i.id));
+    if(!next)return `<div class="scard"><div class="shead">${c.icon} ${c.name}</div><div class="sdone"><b>🏆</b>קניתם את כל ה${c.name}!</div>${progDots(c.id)}</div>`;
+    const can=DATA.coins>=next.price;
+    return `<div class="scard"><div class="shead">${c.icon} ${c.name}</div>
+      <div class="sowl">${owlSVG(Object.assign({},DATA.outfit,{[c.id]:next.id}))}</div>
+      <div class="sname">${next.name}</div>${progDots(c.id)}
+      <button class="btn ${can?'green':''}" data-buy="${next.id}" ${can?'':'disabled'}>${can?`קנייה · 🪙 ${next.price}`:`🪙 ${next.price} · חסרים עוד ${next.price-DATA.coins}`}</button></div>`}).join('');
+  $('store').innerHTML=`<div class="topbar"><button class="xbtn" id="shBack" aria-label="חזרה לתפריט">✕</button><h2 class="ttl">🛍️ החנות של ינשופי</h2><span class="chip">🪙 ${DATA.coins}</span></div>
+   <div class="stop"><div class="owl-wrap" id="shOwl">${owlSVG()}</div></div>
+   <div class="bubble-home">${msg||'אספו מטבעות 🪙 בתשובות נכונות וקנו לי בגדים חדשים! אחרי כל קנייה יופיע פריט חדש בחנות.'}</div>
+   <div class="shopgrid">${cards}</div>
+   <div class="row"><button class="btn ward" id="shWard">👗 לארון הבגדים</button></div>`;
+  $('shBack').onclick=()=>{SFX.click();renderHome();show('home')};
+  $('shWard').onclick=()=>{SFX.click();renderWardrobe();show('wardrobe')};
+  $('shOwl').onclick=()=>{owlMood($('shOwl'),'happy');SFX.good()};
+  $('store').querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>buyItem(b.dataset.buy));
+}
+function buyItem(id){
+  const it=ITEM[id];if(!it||DATA.owned.includes(id)||DATA.coins<it.price)return;
+  DATA.coins-=it.price;DATA.owned.push(id);DATA.outfit[it.cat]=id;save();
+  renderStore(it.cat==='color'?`יש! ינשופי בצבע <b>${it.name}</b> עכשיו 🎨 אפשר להחליף צבע בארון 👗`
+    :`יש! קניתם <b>${it.name}</b> 🎉 ינשופי כבר לובש את זה. אפשר להחליף בגדים בארון 👗`);
+  SFX.win();confetti(90,.5,.3);setTimeout(()=>owlMood($('shOwl'),'happy'),50);
+  scrollTo({top:0,behavior:'smooth'});
+}
+function renderWardrobe(){
+  const secs=CATS.map(c=>{const cur=DATA.outfit[c.id];
+    return `<div class="wsec"><div class="wtitle">${c.icon} ${c.name}</div><div class="wrow">
+      <button class="wtile ${!cur?'on':''}" data-cat="${c.id}" data-id="">${c.id==='color'?owlSVG({})+'<small>סגול (רגיל)</small>':'🚫<small>בלי</small>'}</button>
+      ${ITEMS.filter(i=>i.cat===c.id).map(i=>DATA.owned.includes(i.id)
+        ?`<button class="wtile ${cur===i.id?'on':''}" data-cat="${c.id}" data-id="${i.id}">${itemSVG(i)}<small>${i.name}</small></button>`
+        :`<div class="wtile lock" title="אפשר לקנות בחנות">🔒</div>`).join('')}</div></div>`}).join('');
+  $('wardrobe').innerHTML=`<div class="topbar"><button class="xbtn" id="wBack" aria-label="חזרה לתפריט">✕</button><h2 class="ttl">👗 ארון הבגדים</h2></div>
+   <div class="stop sticky"><div class="owl-wrap" id="wOwl">${owlSVG()}</div></div>
+   ${DATA.owned.length?'':'<div class="bubble-home" style="margin-top:12px">הארון עדיין ריק… קנו לי משהו בחנות! 🛍️</div>'}
+   ${secs}
+   <div class="row"><button class="btn store" id="wStore">🛍️ לחנות</button><button class="btn" id="wNone">🧺 להוריד הכל</button></div>`;
+  $('wBack').onclick=()=>{SFX.click();renderHome();show('home')};
+  $('wStore').onclick=()=>{SFX.click();renderStore();show('store')};
+  $('wNone').onclick=()=>{DATA.outfit=DATA.outfit.color?{color:DATA.outfit.color}:{};save();SFX.click();renderWardrobe()};
+  $('wOwl').onclick=()=>{owlMood($('wOwl'),'happy');SFX.good()};
+  $('wardrobe').querySelectorAll('button.wtile').forEach(b=>b.onclick=()=>{
+    const c=b.dataset.cat,id=b.dataset.id;if(id)DATA.outfit[c]=id;else delete DATA.outfit[c];save();SFX.click();
+    b.parentNode.querySelectorAll('.wtile').forEach(t=>t.classList.toggle('on',t===b));
+    $('wOwl').innerHTML=owlSVG();owlMood($('wOwl'),id?'happy':'')});
+}
+
 function openModal(h){$('mbox').innerHTML=h;$('modal').classList.remove('hidden')}
 function closeModal(){$('modal').classList.add('hidden')}
 $('modal').onclick=e=>{if(e.target.id==='modal')closeModal()};
@@ -875,12 +1028,12 @@ function openSettings(){
   openModal(`<h3>⚙️ הגדרות להורים</h3><p>אילו לוחות כפל הילדים כבר למדו? השאלות בכפל, בחילוק ובשאלות המילוליות ישתמשו רק בהם.</p>
    <div class="tabs">${[1,2,3,4,5,6,7,8,9,10].map(n=>`<label class="${sel.has(n)?'on':''}" data-n="${n}">${n}</label>`).join('')}</div>
    <div class="row"><button class="btn primary" id="sSave">שמירה</button><button class="btn" id="sClose">ביטול</button></div>
-   <hr style="border:none;border-top:2px dashed #eee;margin:16px 0"><p>איפוס כל הכוכבים, המטבעות והמדבקות:</p><button class="btn" id="sReset" style="color:var(--redd);width:100%">🗑️ איפוס התקדמות</button>`);
+   <hr style="border:none;border-top:2px dashed #eee;margin:16px 0"><p>איפוס כל הכוכבים, המטבעות, המדבקות והבגדים:</p><button class="btn" id="sReset" style="color:var(--redd);width:100%">🗑️ איפוס התקדמות</button>`);
   document.querySelectorAll('.tabs label').forEach(l=>l.onclick=()=>{const n=+l.dataset.n;if(sel.has(n))sel.delete(n);else sel.add(n);l.classList.toggle('on')});
   $('sSave').onclick=()=>{const arr=[...sel].sort((a,b)=>a-b);DATA.tables=arr.filter(x=>x>1).length?arr:[1,2,3,4,5,6,7,8,9,10];save();closeModal()};
   $('sClose').onclick=closeModal;
-  $('sReset').onclick=()=>{openModal(`<h3>בטוח לאפס?</h3><p>כל הכוכבים, המטבעות והמדבקות יימחקו.</p><div class="row"><button class="btn" id="rYes" style="color:var(--redd)">כן, לאפס</button><button class="btn primary" id="rNo">לא</button></div>`);
-    $('rYes').onclick=()=>{DATA.best={};DATA.coins=0;DATA.stickers=[];DATA.recent={};save();closeModal();renderHome()};$('rNo').onclick=closeModal};
+  $('sReset').onclick=()=>{openModal(`<h3>בטוח לאפס?</h3><p>כל הכוכבים, המטבעות, המדבקות והבגדים יימחקו.</p><div class="row"><button class="btn" id="rYes" style="color:var(--redd)">כן, לאפס</button><button class="btn primary" id="rNo">לא</button></div>`);
+    $('rYes').onclick=()=>{DATA.best={};DATA.coins=0;DATA.stickers=[];DATA.recent={};DATA.owned=[];DATA.outfit={};save();closeModal();renderHome()};$('rNo').onclick=closeModal};
 }
 
 renderHome();
