@@ -844,7 +844,7 @@ function renderQ(){
   const tp=TOPICS.find(t=>t.id===q.topic);
   $('qnum').textContent=`שאלה ${G_.i+1} מתוך ${G_.qs.length}`+(G_.tid==='mix'?` · ${tp.icon} ${tp.name}`:'');
   $('prompt').innerHTML=q.prompt;$('visual').innerHTML=q.visual||'';$('hints').innerHTML='';
-  $('feedback').classList.add('hidden');$('gcoins').textContent=DATA.coins;
+  $('feedback').classList.add('hidden');$('gcoins').textContent=DATA.coins+G_.score;
   updHintBtn();renderProgress();renderAnswer(q);
   $('visual').querySelectorAll('[data-corner]').forEach(b=>b.onclick=()=>{const sc=b.closest('.corner-scope');sc.classList.toggle('show-corner');b.classList.toggle('on');SFX.click()});
   $('visual').querySelectorAll('.cdot').forEach(c=>c.addEventListener('click',()=>{c.classList.toggle('m');SFX.click()}));
@@ -887,8 +887,8 @@ function isRight(q,v){if(q.type==='draw'){const t=v===90?'right':v<88?'acute':'o
 function submit(v,btn){
   const q=G_.qs[G_.i];q.attempts++;
   if(isRight(q,v)){
-    q.done=true;const pts=q.attempts===1?10:5;DATA.coins+=pts;G_.score+=pts;G_.correct++;if(q.attempts===1){G_.first++;G_.streak++}else G_.streak=0;
-    G_.res[G_.i]=q.attempts===1?'ok':'half';save();
+    q.done=true;const pts=q.attempts===1?10:5;G_.score+=pts;G_.correct++;if(q.attempts===1){G_.first++;G_.streak++}else G_.streak=0;
+    G_.res[G_.i]=q.attempts===1?'ok':'half';
     if(btn)btn.classList.add('right');
     SFX.good();say(P(MSG.good),'happy');floatPlus('+'+pts+' 🪙',btn||$('answerArea'));
     if(G_.streak>0&&G_.streak%3===0)confetti(60,.5,.3);else confetti(28,.5,.45);
@@ -912,14 +912,14 @@ function submit(v,btn){
   updHintBtn();renderProgress();
 }
 function floatPlus(txt,el){const r=el.getBoundingClientRect();const d=document.createElement('div');d.className='plus';d.textContent=txt;
-  d.style.left=(r.left+r.width/2-40)+'px';d.style.top=(r.top-10)+'px';document.body.appendChild(d);setTimeout(()=>d.remove(),1000);$('gcoins').textContent=DATA.coins}
+  d.style.left=(r.left+r.width/2-40)+'px';d.style.top=(r.top-10)+'px';document.body.appendChild(d);setTimeout(()=>d.remove(),1000);$('gcoins').textContent=DATA.coins+G_.score}
 function feedback(good,title,body){const f=$('feedback');f.className='feedback '+(good?'good':'bad');
   const last=G_.i>=G_.qs.length-1;
   f.innerHTML=`<div class="ft">${title}</div>${body?`<div>${body}</div>`:''}<button class="btn ${good?'green':'primary'}" id="nextBtn">${last?'🏁 לסיכום':'לשאלה הבאה ⬅'}</button>`;
   $('nextBtn').onclick=()=>{SFX.click();if(last)endRound();else{G_.i++;renderQ();say(P(MSG.think));}};
   setTimeout(()=>f.scrollIntoView({behavior:'smooth',block:'nearest'}),60);
 }
-$('quit').onclick=()=>{SFX.click();openModal(`<h3>לצאת מהסיבוב? 🦉</h3><p>ההתקדמות בסיבוב הזה לא תישמר (המטבעות שצברתם נשארים).</p>
+$('quit').onclick=()=>{SFX.click();openModal(`<h3>לצאת מהסיבוב? 🦉</h3><p>ההתקדמות בסיבוב הזה לא תישמר, והמטבעות שצברתם בסיבוב הזה ילכו לאיבוד. מטבעות מקבלים רק בסוף סיבוב שלם.</p>
   <div class="row"><button class="btn primary" id="mYes">כן, לתפריט</button><button class="btn" id="mNo">להמשיך לשחק</button></div>`);
   $('mYes').onclick=()=>{closeModal();renderHome();show('home')};$('mNo').onclick=closeModal};
 
@@ -943,6 +943,7 @@ function initDraw(q){
 /* ================== end ================== */
 function endRound(){
   const n=G_.qs.length,pct=G_.score/(n*10);const stars=pct>=.85?3:pct>=.6?2:pct>=.3?1:0;
+  DATA.coins+=G_.score;
   const prev=DATA.best[G_.tid]||0;if(stars>prev)DATA.best[G_.tid]=stars;
   const t=TOPICS.find(t=>t.id===G_.tid);
   DATA.recent=DATA.recent||{};
