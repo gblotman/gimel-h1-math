@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>מסע המתמטיקה – הכנה למבחן כיתה ג׳</title>
+<title>ינשופי בחגיגת המתמטיקה – הכנה למבחן כיתה ג׳</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -806,7 +806,7 @@ function renderHome(){
   const total=Object.values(DATA.best).reduce((a,b)=>a+b,0),d=daysLeft();
   $('home').innerHTML=`
    <header class="hero"><div class="owl-wrap" id="homeOwl">${owlSVG()}</div>
-    <div><h1>מסע המתמטיקה</h1><p>מתאמנים למבחן של כיתה ג׳ עם ינשופי 🦉</p></div></header>
+    <div><h1>ינשופי בחגיגת המתמטיקה</h1><p>מתאמנים למבחן של כיתה ג׳ עם ינשופי 🦉</p></div></header>
    <div class="bubble-home">${d>0?`היי! נשארו עוד <b>${d} ימים</b> למבחן. `:''}בחרו נושא – בכל סיבוב 10 שאלות חדשות. אם נתקעים, לוחצים על 💡 רמז!</div>
    <div class="stats"><span class="chip">⭐ ${total}/${(TOPICS.length+1)*3}</span><span class="chip">🪙 ${DATA.coins}</span><span class="chip">🎁 ${DATA.stickers.length}/${STICKERS.length}</span>${d>0?`<span class="chip count">📅 עוד ${d} ימים</span>`:''}</div>
    <div class="topics">${TOPICS.map(t=>`<button class="tcard" style="--c:${t.c};--cd:${t.cd}" data-topic="${t.id}">
