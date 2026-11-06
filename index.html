@@ -75,6 +75,9 @@ button{font-family:inherit;touch-action:manipulation;cursor:pointer;color:inheri
 .btn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(45,34,80,.15)}
 .btn.primary{background:var(--purple);color:#fff;box-shadow:0 5px 0 var(--purpled)}
 .btn.green{background:var(--green);color:#fff;box-shadow:0 5px 0 var(--greend)}
+.audioctl{position:relative;z-index:1;display:flex;justify-content:center;gap:12px;padding:6px 0 28px}
+.audioctl button{width:44px;height:44px;border:none;border-radius:50%;background:#fff;font-size:20px;box-shadow:0 3px 0 rgba(45,34,80,.2)}
+.audioctl button.off{opacity:.55}
 .btn.small{flex:0 0 auto;padding:10px 14px}
 
 /* game */
@@ -280,6 +283,7 @@ h2.ttl{font-size:26px;font-weight:900;margin:4px 0}
   <section id="store" class="screen"></section>
   <section id="wardrobe" class="screen"></section>
 </main>
+<div class="audioctl"><button id="soundBtn" aria-label="צליל"></button><button id="musicBtn" aria-label="מוזיקה">🎵</button></div>
 <div id="modal" class="modal hidden"><div class="mbox" id="mbox"></div></div>
 
 <script>
@@ -294,7 +298,7 @@ const digits=n=>[Math.floor(n/100)%10,Math.floor(n/10)%10,n%10];
 
 const STORE_KEY='mathQuest3_v1';
 function loadData(){try{return JSON.parse(localStorage.getItem(STORE_KEY)||'{}')}catch(e){return{}}}
-let DATA=Object.assign({best:{},coins:0,stickers:[],tables:[1,2,3,4,5,6,7,8,9,10],sound:true,recent:{},owned:[],outfit:{}},loadData());
+let DATA=Object.assign({best:{},coins:0,stickers:[],tables:[1,2,3,4,5,6,7,8,9,10],sound:true,music:false,recent:{},owned:[],outfit:{}},loadData());
 function save(){try{localStorage.setItem(STORE_KEY,JSON.stringify(DATA))}catch(e){}}
 const tables=()=>DATA.tables&&DATA.tables.length?DATA.tables:[1,2,3,4,5,6,7,8,9,10];
 const tab=(min=1)=>{const t=tables().filter(x=>x>=min);return t.length?P(t):P([2,3,4,5])};
@@ -814,12 +818,11 @@ function renderHome(){
      <span class="ic">${t.icon}</span><span class="nm">${t.name}</span><span class="sb">${t.sub}</span><div class="st">${starsHTML(DATA.best[t.id]||0)}</div></button>`).join('')}</div>
    <button class="bigbtn" data-topic="mix">🏆 אתגר מסכם – כל הנושאים <span style="font-size:16px">${starsHTML(DATA.best.mix||0)}</span></button>
    <div class="row"><button class="btn store" id="goStore">🛍️ החנות של ינשופי</button><button class="btn ward" id="goWardrobe">👗 ארון הבגדים</button></div>
-   <div class="row"><button class="btn" id="goStickers">🎁 המדבקות שלי</button>   <button class="btn small" id="soundBtn" aria-label="צליל">${DATA.sound?'🔊':'🔇'}</button></div>`;
+   <div class="row"><button class="btn" id="goStickers">🎁 המדבקות שלי</button></div>`;
   $('home').querySelectorAll('[data-topic]').forEach(b=>b.onclick=()=>{SFX.click();startRound(b.dataset.topic)});
   $('goStickers').onclick=()=>{SFX.click();renderStickers();show('stickers')};
   $('goStore').onclick=()=>{SFX.click();renderStore();show('store')};
   $('goWardrobe').onclick=()=>{SFX.click();renderWardrobe();show('wardrobe')};
-  $('soundBtn').onclick=()=>{DATA.sound=!DATA.sound;save();renderHome();SFX.click()};
   $('homeOwl').onclick=()=>{owlMood($('homeOwl'),'happy');SFX.good()};
 }
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));scrollTo({top:0,behavior:'smooth'})}
@@ -1023,6 +1026,13 @@ function renderWardrobe(){
 function openModal(h){$('mbox').innerHTML=h;$('modal').classList.remove('hidden')}
 function closeModal(){$('modal').classList.add('hidden')}
 $('modal').onclick=e=>{if(e.target.id==='modal')closeModal()};
+const bgmList=['music/song1.mp3','music/song2.mp3'];let bgmI=0;const bgm=new Audio(bgmList[0]);bgm.volume=.35;bgm.onended=()=>{bgmI=(bgmI+1)%bgmList.length;bgm.src=bgmList[bgmI];bgm.play().catch(()=>{})};
+function applyMusic(){if(DATA.music)bgm.play().catch(()=>{});else bgm.pause()}
+function syncAudioBtns(){$('soundBtn').textContent=DATA.sound?'🔊':'🔇';$('soundBtn').classList.toggle('off',!DATA.sound);$('musicBtn').classList.toggle('off',!DATA.music)}
+$('soundBtn').onclick=()=>{DATA.sound=!DATA.sound;save();syncAudioBtns();SFX.click()};
+$('musicBtn').onclick=()=>{DATA.music=!DATA.music;save();applyMusic();syncAudioBtns();SFX.click()};
+syncAudioBtns();
+if(DATA.music)document.addEventListener('pointerdown',()=>applyMusic(),{once:true});
 renderHome();
 </script>
 </body>
