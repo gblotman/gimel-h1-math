@@ -814,11 +814,9 @@ function renderHome(){
      <span class="ic">${t.icon}</span><span class="nm">${t.name}</span><span class="sb">${t.sub}</span><div class="st">${starsHTML(DATA.best[t.id]||0)}</div></button>`).join('')}</div>
    <button class="bigbtn" data-topic="mix">🏆 אתגר מסכם – כל הנושאים <span style="font-size:16px">${starsHTML(DATA.best.mix||0)}</span></button>
    <div class="row"><button class="btn store" id="goStore">🛍️ החנות של ינשופי</button><button class="btn ward" id="goWardrobe">👗 ארון הבגדים</button></div>
-   <div class="row"><button class="btn" id="goStickers">🎁 המדבקות שלי</button><button class="btn" id="goSettings">⚙️ הגדרות להורים</button>
-   <button class="btn small" id="soundBtn" aria-label="צליל">${DATA.sound?'🔊':'🔇'}</button></div>`;
+   <div class="row"><button class="btn" id="goStickers">🎁 המדבקות שלי</button>   <button class="btn small" id="soundBtn" aria-label="צליל">${DATA.sound?'🔊':'🔇'}</button></div>`;
   $('home').querySelectorAll('[data-topic]').forEach(b=>b.onclick=()=>{SFX.click();startRound(b.dataset.topic)});
   $('goStickers').onclick=()=>{SFX.click();renderStickers();show('stickers')};
-  $('goSettings').onclick=()=>{SFX.click();openSettings()};
   $('goStore').onclick=()=>{SFX.click();renderStore();show('store')};
   $('goWardrobe').onclick=()=>{SFX.click();renderWardrobe();show('wardrobe')};
   $('soundBtn').onclick=()=>{DATA.sound=!DATA.sound;save();renderHome();SFX.click()};
@@ -1025,19 +1023,6 @@ function renderWardrobe(){
 function openModal(h){$('mbox').innerHTML=h;$('modal').classList.remove('hidden')}
 function closeModal(){$('modal').classList.add('hidden')}
 $('modal').onclick=e=>{if(e.target.id==='modal')closeModal()};
-function openSettings(){
-  const sel=new Set(tables());
-  openModal(`<h3>⚙️ הגדרות להורים</h3><p>אילו לוחות כפל הילדים כבר למדו? השאלות בכפל, בחילוק ובשאלות המילוליות ישתמשו רק בהם.</p>
-   <div class="tabs">${[1,2,3,4,5,6,7,8,9,10].map(n=>`<label class="${sel.has(n)?'on':''}" data-n="${n}">${n}</label>`).join('')}</div>
-   <div class="row"><button class="btn primary" id="sSave">שמירה</button><button class="btn" id="sClose">ביטול</button></div>
-   <hr style="border:none;border-top:2px dashed #eee;margin:16px 0"><p>איפוס כל הכוכבים, המטבעות, המדבקות והבגדים:</p><button class="btn" id="sReset" style="color:var(--redd);width:100%">🗑️ איפוס התקדמות</button>`);
-  document.querySelectorAll('.tabs label').forEach(l=>l.onclick=()=>{const n=+l.dataset.n;if(sel.has(n))sel.delete(n);else sel.add(n);l.classList.toggle('on')});
-  $('sSave').onclick=()=>{const arr=[...sel].sort((a,b)=>a-b);DATA.tables=arr.filter(x=>x>1).length?arr:[1,2,3,4,5,6,7,8,9,10];save();closeModal()};
-  $('sClose').onclick=closeModal;
-  $('sReset').onclick=()=>{openModal(`<h3>בטוח לאפס?</h3><p>כל הכוכבים, המטבעות, המדבקות והבגדים יימחקו.</p><div class="row"><button class="btn" id="rYes" style="color:var(--redd)">כן, לאפס</button><button class="btn primary" id="rNo">לא</button></div>`);
-    $('rYes').onclick=()=>{DATA.best={};DATA.coins=0;DATA.stickers=[];DATA.recent={};DATA.owned=[];DATA.outfit={};save();closeModal();renderHome()};$('rNo').onclick=closeModal};
-}
-
 renderHome();
 </script>
 </body>
