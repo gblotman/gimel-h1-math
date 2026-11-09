@@ -119,12 +119,16 @@ button{font-family:inherit;touch-action:manipulation;cursor:pointer;color:inheri
 .bignum .slot{display:inline-grid;place-items:center;width:1.3em;height:1.3em;border-radius:50%;border:4px dashed #ff4fa3;color:#ff4fa3;font-size:.7em}
 .digit-tiles{display:flex;gap:10px;direction:ltr}
 .digit-tiles b{width:58px;height:64px;display:grid;place-items:center;font-size:34px;background:#fff7d6;border:3px solid var(--yellow);border-radius:16px;box-shadow:0 4px 0 var(--yellowd)}
+.digit-tiles.nums{flex-wrap:wrap;justify-content:center}
+.digit-tiles.nums b{width:auto;min-width:58px;padding:0 10px;font-size:26px}
+.bignum.long{font-size:clamp(22px,6.2vw,40px);letter-spacing:1px;gap:8px;flex-wrap:wrap;justify-content:center}
 .seq{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px;direction:rtl}
 .seq .c{min-width:58px;height:58px;padding:0 8px;display:grid;place-items:center;border-radius:16px;background:#e3f8fc;border:3px solid #00b8d4;font-weight:900;font-size:22px;direction:ltr}
 .seq .c.q{background:#fff0f7;border:3px dashed #ff4fa3;color:#ff4fa3}
 .seq .c.target{background:#f1e9ff;border:3px solid var(--purple);color:var(--purple)}
 .seq .c.blank{background:#f5f5f5;border:3px dashed #bbb;color:#bbb}
-.seq .ar{color:#00b8d4;font-weight:900;font-size:20px}
+.seq .ar{display:inline-flex;align-items:center;color:#00b8d4}
+.seq .ar svg{width:30px;height:22px;display:block}
 .blocks{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap;justify-content:center;direction:ltr}
 .bgroup{display:flex;gap:4px;align-items:flex-end;flex-wrap:wrap;max-width:260px}
 .hund{width:60px;height:60px;border:2px solid #5a2fd6;background-color:#b9a3ff;
@@ -222,6 +226,31 @@ h2.ttl{font-size:26px;font-weight:900;margin:4px 0}
 .tabs input{display:none}
 .tabs label.on{background:var(--purple);color:#fff}
 
+/* settings */
+.setcard{background:#fff;border-radius:20px;padding:14px 16px;margin-top:12px;box-shadow:0 4px 0 rgba(45,34,80,.08)}
+.setcard h3{margin:0 0 4px;font-size:19px;font-weight:900}
+.setcard p{margin:0 0 10px;color:var(--ink2);font-size:14px;line-height:1.45}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.seg button{border:3px solid #e6e0ff;background:var(--soft);border-radius:16px;padding:10px 8px;font-weight:800;font-size:16px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.seg button small{font-weight:500;font-size:12.5px;color:var(--ink2);line-height:1.3}
+.seg button.on{border-color:var(--purple);background:#ece4ff;box-shadow:0 0 0 3px rgba(124,77,255,.25)}
+.setsub{font-weight:800;font-size:15px;margin:12px 0 6px}
+.npills{display:grid;grid-template-columns:repeat(var(--cols),1fr);gap:6px}
+.npills button{height:46px;border:3px solid #e6e0ff;background:var(--soft);border-radius:14px;font-size:18px;font-weight:900;color:var(--ink2);padding:0;transition:transform .08s}
+.npills button:active{transform:translateY(2px)}
+.npills button.on{background:var(--purple);border-color:var(--purple);color:#fff;box-shadow:0 4px 0 var(--purpled)}
+.npills.hard button.on{background:linear-gradient(135deg,#ff8a00,#ff4fa3);border-color:transparent;box-shadow:0 4px 0 #c2366f}
+.npills button.none{font-size:14px}
+.preview{margin-top:16px;background:var(--soft);border-radius:16px;padding:12px 10px 10px}
+.pstrip{display:flex;gap:3px;align-items:center;justify-content:center;direction:rtl}
+.pstrip i{flex:1 1 0;max-width:20px;aspect-ratio:1;border-radius:50%;background:#b9a3ff}
+.pstrip i.h{background:linear-gradient(135deg,#ff8a00,#ff4fa3)}
+.pstrip i.pop{animation:dotpop .35s}
+.pstrip b{font-size:16px;margin-right:2px}
+@keyframes dotpop{0%{transform:scale(.4)}60%{transform:scale(1.25)}100%{transform:scale(1)}}
+.pcap{text-align:center;margin-top:8px;font-weight:800;font-size:14px;color:var(--ink2)}
+.pcap .hh{color:#e8590c}
+
 /* store & wardrobe */
 .btn:disabled{opacity:.6;cursor:default}
 .btn.store{background:linear-gradient(90deg,#22c55e,#00b8d4);color:#fff;box-shadow:0 5px 0 #0e8a7a}
@@ -293,6 +322,7 @@ h2.ttl{font-size:26px;font-weight:900;margin:4px 0}
   <section id="stickers" class="screen"></section>
   <section id="store" class="screen"></section>
   <section id="wardrobe" class="screen"></section>
+  <section id="settings" class="screen"></section>
 </main>
 <div class="audioctl"><button id="soundBtn" aria-label="צליל"></button><span class="musicgrp"><button id="prevBtn" class="skip" aria-label="שיר קודם"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M20 5l-8 7 8 7zM12 5l-8 7 8 7z"/><rect x="2" y="5" width="2.5" height="14" rx=".6"/></svg></button><button id="musicBtn" aria-label="מוזיקה">🎵</button><button id="nextBtn" class="skip" aria-label="שיר הבא"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M4 5l8 7-8 7zM12 5l8 7-8 7z"/><rect x="19.5" y="5" width="2.5" height="14" rx=".6"/></svg></button></span></div>
 <div id="modal" class="modal hidden"><div class="mbox" id="mbox"></div></div>
@@ -310,6 +340,7 @@ const digits=n=>[Math.floor(n/100)%10,Math.floor(n/10)%10,n%10];
 const STORE_KEY='mathQuest3_v1';
 function loadData(){try{return JSON.parse(localStorage.getItem(STORE_KEY)||'{}')}catch(e){return{}}}
 let DATA=Object.assign({best:{},coins:0,stickers:[],tables:[1,2,3,4,5,6,7,8,9,10],sound:true,music:false,recent:{},owned:[],outfit:{}},loadData());
+DATA.settings=Object.assign({level:'classic',mixN:14,mixHard:0},DATA.settings);
 function save(){try{localStorage.setItem(STORE_KEY,JSON.stringify(DATA))}catch(e){}}
 const tables=()=>DATA.tables&&DATA.tables.length?DATA.tables:[1,2,3,4,5,6,7,8,9,10];
 const tab=(min=1)=>{const t=tables().filter(x=>x>=min);return t.length?P(t):P([2,3,4,5])};
@@ -330,10 +361,11 @@ function genPV(sub){
         `במספר ${n} יש שלוש ספרות. איזו מהן יושבת במקום של ה${pl.n}?`],
       explain:`במספר ${n} יש ${h} מאות, ${t} עשרות ו-${u} יחידות. ספרת ה${pl.n} היא <b>${ans}</b>.`});
   }
-  if(sub==='compose'){
-    const h=R(1,9),t=Math.random()<.2?0:R(0,9),u=Math.random()<.2?0:R(0,9);
+  if(sub==='compose'||sub==='composeH'){const hard=sub==='composeH';
+    const h=R(1,9);let t,u;
+    if(hard){const zt=Math.random()<.5;t=zt?0:R(1,9);u=zt?R(1,9):0}else{t=Math.random()<.2?0:R(0,9);u=Math.random()<.2?0:R(0,9)}
     const parts=[[h,0],[t,1],[u,2]].filter(p=>p[0]>0);
-    const ord=Math.random()<.6?shuffle(parts):parts;
+    const ord=hard?parts.slice().reverse():Math.random()<.6?shuffle(parts):parts;
     const txt=ord.map(([c,i])=>c===1?PLACES[i].s:`${c} ${PLACES[i].n}`);
     const list=txt.length>1?txt.slice(0,-1).join(', ')+' ו'+txt[txt.length-1]:txt[0];
     const ans=h*100+t*10+u,hasZero=t===0||u===0;
@@ -392,12 +424,33 @@ function genPV(sub){
         'הצד הפתוח של הסימן (הפה של התנין 🐊) תמיד פונה אל המספר הגדול.'],
       explain:`${eq(a+' '+(ans==='<'?'&lt;':ans==='>'?'&gt;':'=')+' '+b)}`+(ans==='='?' – המספרים שווים.':` – המספר ${Math.max(a,b)} גדול יותר.`)});
   }
-  if(sub==='plusminus'){
-    const d=P([1,10,100]),up=Math.random()<.55;let n;
+  if(sub==='compareExp'){
+    const h=R(1,9);let t=R(0,9),u=R(0,9);const z=R(0,2);if(z===0)t=0;else if(z===1)u=0;if(t===0&&u===0)u=R(1,9);
+    const val=h*100+t*10+u,ord=shuffle([h*100,t*10,u].filter(x=>x>0));
+    const m=R(0,3);let b;
+    if(m===0)b=val;
+    else if(m===1&&t!==u)b=h*100+u*10+t;
+    else do{b=val+P([10,-10,1,-1,100,-100,9,-9])}while(b<100||b>999||b===val);
+    const swap=Math.random()<.5,L=swap?String(b):ord.join(' + '),Rt=swap?ord.join(' + '):String(b);
+    const lv=swap?b:val,rv=swap?val:b,ans=lv<rv?'<':lv>rv?'>':'=',sym=ans==='<'?'&lt;':ans==='>'?'&gt;':'=';
+    return choiceQ({key:'pce'+L+'_'+Rt,prompt:'איזה סימן מתאים במקום העיגול?',
+      visual:`<div class="bignum long">${L} <span class="slot">?</span> ${Rt}</div>`,
+      choices:['<','>','='].map(s=>({label:eq(s==='<'?'&lt;':s==='>'?'&gt;':'='),value:s,big:true})),answer:ans,
+      hints:['נהפוך קודם את התרגיל למספר רגיל: מי המאות, מי העשרות ומי היחידות?',
+        'שימו לב: הסדר בתרגיל מבולבל, ואם חסר מקום – כותבים בו 0!',
+        'הצד הפתוח של הסימן (הפה של התנין 🐊) תמיד פונה אל המספר הגדול.'],
+      explain:`${eq(ord.join(' + ')+' = '+val)}, לכן ${eq(L+' '+sym+' '+Rt)}`});
+  }
+  if(sub==='plusminus'||sub==='plusminusH'){const hard=sub==='plusminusH';
+    const d=hard?P([1,10]):P([1,10,100]),up=Math.random()<.55;let n;
+    if(hard){/* always crosses a ten or a hundred */
+      if(d===1)n=up?R(1,8)*100+99:R(1,9)*100;
+      else n=up?R(1,8)*100+90+R(0,9):R(1,9)*100+R(0,9);
+    }else{
     if(d===1)n=up?R(10,98)*10+9:R(11,99)*10;
     else if(d===10)n=up?R(1,8)*100+90+R(0,9):R(1,9)*100+R(0,9);
     else n=up?R(100,899):R(200,999);
-    if(Math.random()<.35)n=d===100?R(100,899):R(101,989);
+    if(Math.random()<.35)n=d===100?R(100,899):R(101,989);}
     const ans=up?n+d:n-d;
     const prompt=d===1?(up?`איזה מספר בא <span class="hl">מיד אחרי</span> ${n}?`:`איזה מספר בא <span class="hl">מיד לפני</span> ${n}?`)
       :`מהו המספר ש<span class="hl">${up?'גדול':'קטן'} ב-${d}</span> מ-${n}?`;
@@ -425,27 +478,29 @@ function genPV(sub){
 }
 
 /* ---------- 2. sequences ---------- */
-function makeSeq(){
-  const step=P([2,3,4,5,5,10,10,20,25,50,100,3,4]),up=Math.random()<.65;
-  const span=step*5;let start;
-  if(up){const max=Math.min(999-span,step>=10?850:150);start=R(1,Math.max(1,max));if(step>=25&&Math.random()<.6)start=Math.max(step,Math.round(start/step)*step);}
-  else{start=R(span+1,step>=10?999:Math.min(999,span+150));if(step>=25&&Math.random()<.6)start=Math.ceil(start/step)*step;if(start>999)start-=step;if(start-span<1)start+=step;}
+function makeSeq(hard){
+  const step=hard?P([3,4,6,7,8,9,15,25,50]):P([2,3,4,5,5,10,10,20,25,50,100,3,4]),up=Math.random()<.65;
+  const span=step*5;let start;const round=!hard&&step>=25&&Math.random()<.6;
+  if(up){const max=Math.min(999-span,step>=10?850:150);start=R(1,Math.max(1,max));if(round)start=Math.max(step,Math.round(start/step)*step);}
+  else{start=R(span+1,step>=10?999:Math.min(999,span+150));if(round)start=Math.ceil(start/step)*step;if(start>999)start-=step;if(start-span<1)start+=step;}
   const s=[];for(let i=0;i<6;i++)s.push(up?start+i*step:start-i*step);
   return {s,step,up};
 }
 const seqHTML=(arr,mark)=>`<div class="seq">${arr.map((v,i)=>{
   const cls=mark&&mark[i]?mark[i]:'';const txt=cls==='q'||cls==='target'?'?':cls==='blank'?'&nbsp;':v;
-  return (i?'<span class="ar">⬅</span>':'')+`<span class="c ${cls}">${txt}</span>`}).join('')}</div>`;
+  return (i?'<span class="ar" aria-hidden="true"><svg viewBox="0 0 30 22"><path d="M30 11 H12" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M14 1.5 L1.5 11 L14 20.5 Z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span>':'')+`<span class="c ${cls}">${txt}</span>`}).join('')}</div>`;
 function genSeq(sub){
-  const {s,step,up}=makeSeq();const rule=`כל פעם ${up?'מוסיפים':'מחסירים'} ${step}`;
-  if(sub==='missing'||sub==='next'){
-    const idx=sub==='next'?5:R(1,4);const mark={};mark[idx]='q';
+  const hard=sub.endsWith('H');if(hard)sub=sub.slice(0,-1);
+  const {s,step,up}=makeSeq(hard);const rule=`כל פעם ${up?'מוסיפים':'מחסירים'} ${step}`;
+  if(sub==='missing'||sub==='next'||sub==='first'){
+    const idx=sub==='next'?5:sub==='first'?0:R(1,4);const mark={};mark[idx]='q';
     const shown=s.map((v,i)=>i).filter(i=>i!==idx);
     const a=shown.find(i=>i+1!==idx&&i+1<6&&i!==idx);const pa=s[a],pb=s[a+1];
-    return numQ({key:'sq'+s.join(',')+'@'+idx,prompt:sub==='next'?'מה המספר הבא בסדרה?':'איזה מספר חסר בסדרה?',visual:seqHTML(s,mark),answer:s[idx],
+    return numQ({key:'sq'+s.join(',')+'@'+idx,prompt:sub==='next'?'מה המספר הבא בסדרה?':sub==='first'?'איזה מספר נמצא <span class="hl">בתחילת</span> הסדרה?':'איזה מספר חסר בסדרה?',visual:seqHTML(s,mark),answer:s[idx],
       hints:['נבדוק: בכמה משתנה כל מספר לעומת המספר שלפניו? (הסדרה מתחילה מימין ⬅)',
         `נחשב את ההפרש בין שני מספרים שכנים, למשל ${pa} ו-${pb}.`,
-        `הסדרה ${up?'עולה':'יורדת'}. נפעיל את אותו הכלל על המספר שלפני סימן השאלה.`],
+        sub==='first'?`זהירות: חסר המספר הראשון! הולכים אחורה – עושים את ההפך מהכלל על ${s[1]} (${up?'מחסירים':'מוסיפים'} ${step}).`
+          :`הסדרה ${up?'עולה':'יורדת'}. נפעיל את אותו הכלל על המספר שלפני סימן השאלה.`],
       explain:`הכלל: ${rule}. לכן המספר החסר הוא <b>${s[idx]}</b>.`});
   }
   if(sub==='rule'){
@@ -506,6 +561,23 @@ function genAdd(sub){
     return numQ({key:'ar'+a+op+b,prompt:'פתרו את התרגיל:',visual:`<div class="bignum">${fmt(a)} ${op} ${b} = <span class="slot">?</span></div>`,answer:ans,
       hints:[`${b} זה ${b/100} מאות.`,`נחשוב במאות: כמה מאות יש ב-${fmt(a)}? ${plus?'נוסיף':'נחסיר'} להן ${b/100} מאות.`,'העשרות והיחידות לא משתנות כאן – רק ספרת המאות.'],
       explain:`${eq(fmt(a)+' '+op+' '+b+' = '+fmt(ans))}`});}
+  if(sub==='chain3'){let a,b,c;
+    do{a=R(11,59);c=R(1,4)*10+(10-a%10);b=R(11,39)}while(a%10===0||b%10===0||(a%10)+(b%10)===10||a+b+c>100);
+    const nums=Math.random()<.6?[a,b,c]:shuffle([a,b,c]),txt=nums.join(' + '),sum=a+b+c;
+    return numQ({key:'a3c'+txt,prompt:'פתרו את התרגיל:',visual:`<div class="bignum long">${txt} = <span class="slot">?</span></div>`,answer:sum,
+      hints:['בחיבור מותר לשנות את הסדר – נחבר קודם את מה שהכי נוח!',`חפשו שני מספרים שהיחידות שלהם משלימות ל-10: ${a%10} ו-${c%10}.`,
+        `${eq(a+' + '+c+' = '+(a+c))} – מספר עגול! עכשיו נוסיף לו ${b}.`],
+      explain:`${eq(a+' + '+c+' = '+(a+c))}, &nbsp; ${eq((a+c)+' + '+b+' = '+sum)}`});}
+  if(sub==='mixChain'){const plusFirst=Math.random()<.5;let a,b,c,mid,ans;
+    do{a=R(21,69);b=R(11,39);c=R(11,39);mid=plusFirst?a+b:a-b;ans=plusFirst?mid-c:mid+c}while(a%10===0||mid>100||mid<5||ans<1||ans>100);
+    const o1=plusFirst?'+':'−',o2=plusFirst?'−':'+',txt=`${a} ${o1} ${b} ${o2} ${c}`;
+    return numQ({key:'amc'+txt,prompt:'פתרו את התרגיל:',visual:`<div class="bignum long">${txt} = <span class="slot">?</span></div>`,answer:ans,
+      hints:['פותרים לפי הסדר: קודם הפעולה הראשונה, ואחר כך ממשיכים עם התוצאה.',`שלב 1: ${eq(a+' '+o1+' '+b)} – כמה זה?`,`שלב 2: לתוצאה ${plusFirst?'מחסירים':'מוסיפים'} ${c}.`],
+      explain:`${eq(a+' '+o1+' '+b+' = '+mid)}, &nbsp; ${eq(mid+' '+o2+' '+c+' = '+ans)}`});}
+  if(sub==='missingSub'){let a,b;do{a=R(41,99);b=R(12,a-11)}while(b%10===0||(a%10)>=(b%10)&&Math.random()<.6);const c=a-b;
+    return numQ({key:'ams'+a+'_'+c,prompt:'איזה מספר חסר?',visual:`<div class="bignum">${a} − <span class="slot">?</span> = ${c}</div>`,answer:b,
+      hints:[`השאלה היא: כמה צריך להוריד מ-${a} כדי להגיע ל-${c}?`,`אפשר לחשוב הפוך: מ-${c} – כמה צריך להוסיף כדי להגיע ל-${a}?`,`כלומר, אפשר לפתור: ${eq(a+' − '+c)}.`],
+      explain:`${eq(a+' − '+c+' = '+b)} ובדיקה: ${eq(a+' − '+b+' = '+c)}`});}
 }
 
 /* ---------- 4. multiply & divide ---------- */
@@ -544,6 +616,59 @@ function genMul(sub){
       choices:shuffle([...opts.keys()]).map(k=>({label:eq(k.replace('×',' × ')),value:k})),answer:a+'×'+b,
       hints:['נבדוק כל תרגיל בנפרד – מה התוצאה שלו?','אפשר לפסול מהר תרגילים שהתוצאה שלהם רחוקה מדי.','אם מתלבטים – אפשר לספור בקפיצות.'],
       explain:`${eq(a+' × '+b+' = '+c)}`});}
+  if(sub==='chainMul'){const e=mulChain(),{val,steps}=evalSteps(e),txt=exprTxt(e);
+    const has10=e.nums.includes(2)&&e.nums.includes(5);
+    return numQ({key:'mc'+txt,prompt:'פתרו את התרגיל:',visual:`<div class="bignum long">${txt} = <span class="slot">?</span></div>`,answer:val,
+      hints:['פותרים שלב אחר שלב: כופלים שני מספרים, ואת התוצאה כופלים במספר הבא.',
+        'בתרגיל שיש בו רק כפל – מותר לשנות את הסדר ולכפול קודם את מה שנוח!',
+        has10?`חפשו את 2 ואת 5: ${eq('2 × 5 = 10')}, וכפל ב-10 זה קל! 😉`:e.nums.includes(1)?'כפל ב-1 לא משנה את המספר – אפשר לדלג עליו 😉':'כתבו מעל כל שלב את התוצאה שלו (קשת ⌒), והמשיכו ממנה.'],
+      explain:steps.map(s=>eq(s)).join(', &nbsp;')});}
+  if(sub==='chainMD'){const e=mdChain(P([2,2,3])),{val,steps}=evalSteps(e),txt=exprTxt(e);
+    return numQ({key:'mcd'+txt,prompt:'פתרו את התרגיל:',visual:`<div class="bignum long">${txt} = <span class="slot">?</span></div>`,answer:val,
+      hints:['בתרגיל שיש בו רק כפל וחילוק – פותרים <b>לפי הסדר, משמאל לימין</b> ➡️',
+        `נתחיל מ-${eq(e.nums[0]+' '+e.ops[0]+' '+e.nums[1])} – כמה זה?`,
+        'את התוצאה ממשיכים לפעולה הבאה. כתבו אותה מעל התרגיל (קשת ⌒) כדי לא לשכוח.'],
+      explain:steps.map(s=>eq(s)).join(', &nbsp;')});}
+  if(sub==='cmpExpr'){let L,Rr;
+    if(Math.random()<.35){/* can be answered without computing */
+      const v=R(0,3),x=R(2,9);
+      if(v===0){const y=R(2,9);L={nums:[x,y,1],ops:['×','×']};Rr={nums:[x,y,1,1],ops:['×','×','×']}}
+      else if(v===1){let y;do{y=R(2,9)}while(x*y>50);const k=P([2,3].filter(k=>x*y*k<=100));L={nums:[x,y,k],ops:['×','×']};Rr={nums:[x,y,1],ops:['×','×']}}
+      else if(v===2){let y,z;do{y=R(2,6);z=R(2,5)}while(x*y*z>100||z===x);L={nums:[x,y,z],ops:['×','×']};Rr={nums:[z,y,x],ops:['×','×']}}
+      else{const k=R(2,5),q=R(2,5);L={nums:[q*k,k,k],ops:['×',':']};Rr={nums:[q*k,k,k],ops:[':','×']}}
+      if(Math.random()<.5)[L,Rr]=[Rr,L];
+    }else{
+      L=Math.random()<.6?mdChain(2):mulChain();const lv=evalSteps(L).val,same=Math.random()<.3;
+      for(let i=0;i<300;i++){Rr=Math.random()<.6?mdChain(2):mulChain();const rv=evalSteps(Rr).val;
+        if(exprTxt(Rr)!==exprTxt(L)&&(same?rv===lv:rv!==lv&&Math.abs(rv-lv)<=20))break;}
+    }
+    const lv=evalSteps(L).val,rv=evalSteps(Rr).val,lt=exprTxt(L),rt=exprTxt(Rr);
+    const ans=lv<rv?'<':lv>rv?'>':'=',sym=ans==='<'?'&lt;':ans==='>'?'&gt;':'=';
+    return choiceQ({key:'mx'+lt+'|'+rt,prompt:'איזה סימן מתאים במקום העיגול?',
+      visual:`<div class="bignum long">${lt} <span class="slot">?</span> ${rt}</div>`,
+      choices:['<','>','='].map(s=>({label:eq(s==='<'?'&lt;':s==='>'?'&gt;':'='),value:s,big:true})),answer:ans,
+      hints:['נחשב כל צד בנפרד – לפי הסדר, משמאל לימין ➡️',
+        'לפעמים אפשר לענות בלי לחשב: כפל ב-1 לא משנה את המספר, ובכפל מותר להחליף סדר! 😉',
+        'הצד הפתוח של הסימן (הפה של התנין 🐊) פונה אל הצד הגדול.'],
+      explain:`${eq(lt+' = '+lv)}, &nbsp; ${eq(rt+' = '+rv)}, לכן ${eq(lt+' '+sym+' '+rt)}`});}
+}
+/* chains of × and : – solved in order, left to right */
+const exprTxt=e=>e.nums.map((n,i)=>i?`${e.ops[i-1]} ${n}`:n).join(' ');
+function evalSteps(e){let cur=e.nums[0];const steps=[];
+  e.ops.forEach((o,i)=>{const n=e.nums[i+1],r=o==='×'?cur*n:cur/n;steps.push(`${cur} ${o} ${n} = ${r}`);cur=r});return{val:cur,steps}}
+function mulChain(){let nums;
+  for(let t=0;t<200;t++){nums=Math.random()<.5?[2,5,R(2,9)]:[R(2,6),R(2,5),R(2,4)];
+    if(Math.random()<.25)nums.push(1);nums=shuffle(nums);if(nums.reduce((a,b)=>a*b,1)<=100)break;}
+  return {nums,ops:nums.slice(1).map(()=>'×')};
+}
+function mdChain(nOps){const D=[2,3,4,5,6,7,8,9,10];
+  for(let t=0;t<500;t++){let cur=R(2,10)*R(2,10);const nums=[cur],ops=[];
+    for(let i=0;i<nOps;i++){
+      const divs=D.filter(d=>cur%d===0&&cur/d<=10),muls=cur<=10?D.filter(m=>cur*m<=100):[];
+      const opts=[...(divs.length?[':']:[]),...(muls.length?['×']:[])];if(!opts.length)break;
+      const o=P(opts),n=o===':'?P(divs):P(muls);ops.push(o);nums.push(n);cur=o===':'?cur/n:cur*n;}
+    if(ops.length===nOps&&ops.includes(':')&&(ops.includes('×')||Math.random()<.25))return{nums,ops};}
+  return {nums:[8,2,6],ops:[':','×']};
 }
 
 /* ---------- 5. divisibility ---------- */
@@ -574,6 +699,21 @@ function genDiv(sub){
       visual:`<div class="bignum">${base}<span class="slot">?</span></div>`,choices:shuffle([...set]).map(d=>({label:String(d),value:String(d),big:true})),answer:String(good),
       hints:['סימן השאלה נמצא במקום היחידות – וזה בדיוק המקום שקובע!',RULE[k],'ננסה להציב כל אפשרות ולבדוק אם היא מתאימה לכלל.'],
       explain:`${RULE[k]} לכן הספרה המתאימה היא <b>${good}</b> (${base}${good}).`});}
+  if(sub==='notBoth'){const two=Math.random()<.6,[a,b]=two?[2,5]:[5,10];
+    const right=withEnd(two?P([2,4,6,8]):5),pool=two?[0,5,1,3,7,9]:[0,0,1,2,3,4,6,7,8,9];
+    const set=new Set([right,withEnd(0)]);while(set.size<4)set.add(withEnd(P(pool)));
+    return choiceQ({key:'vn'+[...set].sort().join(',')+a,prompt:`איזה מספר מתחלק ב-${a} <span class="hl">אבל לא</span> ב-${b}?`,
+      choices:shuffle([...set]).map(n=>({label:String(n),value:String(n)})),answer:String(right),
+      hints:[LOOK,`${RULE[a]} ${RULE[b]}`,'צריך ספרת יחידות שמתאימה לכלל הראשון – אבל לא מתאימה לכלל השני.'],
+      explain:`ספרת היחידות של ${right} היא ${right%10}: היא מתאימה לכלל של ${a}, אבל לא לכלל של ${b}. התשובה: <b>${right}</b>.`});}
+  if(sub==='countDiv'){const cnt=R(1,4),good=new Set(),all=new Set();
+    while(good.size<cnt){const n=withEnd(P(OK[k]));good.add(n);all.add(n)}
+    while(all.size<5)all.add(withEnd(P(NOT[k])));
+    const list=shuffle([...all]);
+    return numQ({key:'vc'+k+'_'+[...all].sort().join(','),prompt:`כמה מהמספרים <span class="hl">מתחלקים ב-${k}</span>?`,
+      visual:`<div class="digit-tiles nums">${list.map(n=>`<b>${n}</b>`).join('')}</div>`,answer:cnt,
+      hints:[LOOK,RULE[k],'נעבור על המספרים אחד-אחד ונספור. אפשר לסמן באצבע כל מספר שבדקנו.'],
+      explain:`${RULE[k]} המספרים שמתחלקים ב-${k}: ${list.filter(n=>good.has(n)).join(', ')} – בסך הכל <b>${cnt}</b>.`});}
 }
 
 /* ---------- 6. word problems ---------- */
@@ -600,8 +740,15 @@ const WP=[
  ()=>{const p=per(),a=tab(2),b=R(2,10);return{t:`בספר יש ${a*b} עמודים. ${p.n} ${G(p,'קורא','קוראת')} ${a} עמודים בכל יום. בכמה ימים ${G(p,'יסיים','תסיים')} ${p.n} את הספר?`,ans:b,h:'כל יום קוראים אותה כמות עמודים. כמה "קבוצות" כאלה יש בספר?',ex:`${a*b} : ${a} = ${b}`}},
  ()=>{const[p,q]=two();const k=P([2,3,4,5]),a=R(3,10);return{t:`ל${p.n} יש ${a} צדפים. ל${q.n} יש פי ${k} צדפים מאשר ל${p.n}. כמה צדפים יש ל${q.n}?`,ans:a*k,h:`"פי ${k}" אומר שהכמות של ${p.n} חוזרת ${k} פעמים.`,ex:`${a} × ${k} = ${a*k}`}},
 ];
+/* harder (two-step) word problems – used at the end of a round */
+const WPH=[
+ ()=>{const p=per(),bill=P([50,100]);let k,c;do{k=R(2,6);c=R(2,10)}while(k*c>bill-5);return{t:`${p.n} ${G(p,'קנה','קנתה')} ${k} מחברות. כל מחברת עולה ${c} ₪. ${G(p,'הוא שילם','היא שילמה')} בשטר של ${bill} ₪. כמה עודף ${G(p,'קיבל','קיבלה')} ${p.n}?`,ans:bill-k*c,h:'שני שלבים: קודם נחשב כמה עולות כל המחברות יחד, ואחר כך כמה עודף.',ex:`${k} × ${c} = ${k*c}, &nbsp; ${bill} − ${k*c} = ${bill-k*c}`}},
+ ()=>{const p=per();let x,y,k;do{x=R(5,40);y=P([2,3,4,5,10]);k=R(2,8)}while(x+y*k>100);return{t:`בקופה של ${p.n} יש ${x} ₪. בכל שבוע ${G(p,'הוא מוסיף','היא מוסיפה')} לקופה ${y} ₪. כמה כסף יהיה בקופה אחרי ${k} שבועות?`,ans:x+y*k,h:'שני שלבים: כמה כסף נוסף בכל השבועות יחד? ואז נוסיף את מה שהיה בקופה בהתחלה.',ex:`${k} × ${y} = ${y*k}, &nbsp; ${x} + ${y*k} = ${x+y*k}`}},
+ ()=>{const p=per();let a,b,c;do{a=R(11,39);c=R(1,3)*10+(10-a%10);b=R(11,35)}while(a%10===0||b%10===0||a+b+c>100);return{t:`${p.n} ${G(p,'קרא','קראה')} ספר: ביום ראשון ${a} עמודים, ביום שני ${b} עמודים וביום שלישי ${c} עמודים. כמה עמודים ${G(p,'קרא','קראה')} ${p.n} בסך הכל?`,ans:a+b+c,h:'מחברים שלושה מספרים. טיפ: חפשו שני מספרים שביחד נותנים מספר עגול!',ex:`${a} + ${c} = ${a+c}, &nbsp; ${a+c} + ${b} = ${a+b+c}`}},
+ ()=>{const p=per(),k=R(2,5),a=Math.max(3,tab(2)),x=R(2,a-1);return{t:`${p.n} ${G(p,'חילק','חילקה')} ${a*k} סוכריות שווה בשווה בין ${k} חברים. כל חבר אכל ${x} סוכריות. כמה סוכריות נשארו לכל חבר?`,ans:a-x,h:'שני שלבים: קודם נמצא כמה סוכריות קיבל כל חבר (חילוק), ואחר כך כמה נשארו לו.',ex:`${a*k} : ${k} = ${a}, &nbsp; ${a} − ${x} = ${a-x}`}},
+];
 function genWord(sub){
-  const w=WP[sub]();const t=w.t.replace(/(\d+)/g,'<span class="hl">$1</span>');
+  const w=(typeof sub==='string'?WPH[+sub.slice(1)]:WP[sub])();const t=w.t.replace(/(\d+)/g,'<span class="hl">$1</span>');
   return numQ({key:'w'+w.t,prompt:`<span style="font-weight:500">${t}</span>`,answer:w.ans,isWord:true,
     hints:['נקרא שוב לאט: מה אנחנו יודעים? ומה שואלים? 🧐',w.h,'נכתוב תרגיל עם המספרים מהסיפור ונפתור אותו. אפשר גם לצייר! ✏️'],
     explain:`התרגיל: ${eq(w.ex)} ⬅ התשובה: <b>${w.ans}</b>`});
@@ -632,9 +779,9 @@ function genAng(sub){
       choices:['acute','right','obtuse'].map(k=>({label:'זווית '+ANG[k],value:k})),answer:t,c3:true,
       hints:['נשווה את הזווית לפינה של דף: היא צרה יותר, רחבה יותר, או בדיוק כמוה?','לחצו על הכפתור "📄 פינת דף" – הוא מניח פינת דף על הזווית.',ANGEX],
       explain:`זו <b>זווית ${ANG[t]}</b>. ${ANGEX}`});}
-  if(sub==='compare'){let d1,d2;const eqCase=Math.random()<.2;
-    if(eqCase){d1=d2=90}else{do{d1=R(25,160);d2=R(25,160)}while(Math.abs(d1-d2)<25)}
-    const big=d1>d2?1:2;const longArms=Math.random()<.65?(big===1?2:1):(big);
+  if(sub==='compare'||sub==='compareH'){const hard=sub==='compareH';let d1,d2;const eqCase=Math.random()<(hard?.15:.2);
+    if(eqCase){d1=d2=90}else if(hard){do{d1=R(30,150);d2=d1+P([-1,1])*R(15,22)}while(d2<25||d2>160)}else{do{d1=R(25,160);d2=R(25,160)}while(Math.abs(d1-d2)<25)}
+    const big=d1>d2?1:2;const longArms=(hard||Math.random()<.65)?(big===1?2:1):(big);
     const L=i=>i===longArms?R(90,110):R(45,60);
     const ans=eqCase?'eq':d1>d2?'a':'b';
     const vis=`<div class="angs"><div class="angbox"><span class="alabel">א</span>${angleSVG(d1,R(0,3)*90+R(-20,20),L(1),L(1),'#ff4fa3',118)}</div><div class="angbox"><span class="alabel">ב</span>${angleSVG(d2,R(0,3)*90+R(-20,20),L(2),L(2),'#00b8d4',118)}</div></div>`;
@@ -689,22 +836,25 @@ function genAng(sub){
 
 /* ================== topics ================== */
 const TOPICS=[
- {id:'pv',name:'המבנה העשרוני',sub:'מאות, עשרות ויחידות עד 1,000',icon:'🏰',c:'#7c4dff',cd:'#5a2fd6',gen:genPV,subs:['digit','compose','value','expand','blocks','compare','plusminus','build']},
- {id:'seq',name:'סדרות',sub:'מגלים את הכלל הסודי',icon:'🐾',c:'#00b8d4',cd:'#0090a8',gen:genSeq,subs:['missing','missing','next','rule','twoAhead']},
- {id:'add',name:'חיבור וחיסור',sub:'עד 100 עם המרה, עד 1,000 בלי',icon:'➕',c:'#ff8a00',cd:'#d06a00',gen:genAdd,subs:['add2','sub2','add3','sub3','missing','round','add2','sub2']},
- {id:'mul',name:'כפל וחילוק',sub:'עד 100 – לוח הכפל',icon:'✖️',c:'#ff4fa3',cd:'#c2366f',gen:genMul,subs:['prod','prod','div','div','missing','array','tf','which']},
- {id:'divis',name:'סימני התחלקות',sub:'ב-2, ב-5 וב-10',icon:'🔍',c:'#22c55e',cd:'#15803d',gen:genDiv,subs:['yn','yn','which','whichNot','both','digit']},
- {id:'word',name:'שאלות מילוליות',sub:'סיפורים עם מספרים',icon:'📖',c:'#ef4444',cd:'#b91c1c',gen:genWord,subs:WP.map((_,i)=>i)},
- {id:'ang',name:'זוויות',sub:'שיום, השוואה וסרטוט',icon:'📐',c:'#eab308',cd:'#a16207',gen:genAng,subs:['name','name','compare','pick','draw','draw','clock','shape']},
+ {id:'pv',name:'המבנה העשרוני',sub:'מאות, עשרות ויחידות עד 1,000',icon:'🏰',c:'#7c4dff',cd:'#5a2fd6',gen:genPV,subs:['digit','compose','value','expand','blocks','compare','plusminus','build'],hard:['composeH','plusminusH','compareExp']},
+ {id:'seq',name:'סדרות',sub:'מגלים את הכלל הסודי',icon:'🐾',c:'#00b8d4',cd:'#0090a8',gen:genSeq,subs:['missing','missing','next','rule','twoAhead'],hard:['missingH','twoAheadH','firstH']},
+ {id:'add',name:'חיבור וחיסור',sub:'עד 100 עם המרה, עד 1,000 בלי',icon:'➕',c:'#ff8a00',cd:'#d06a00',gen:genAdd,subs:['add2','sub2','add3','sub3','missing','round','add2','sub2'],hard:['chain3','mixChain','missingSub']},
+ {id:'mul',name:'כפל וחילוק',sub:'עד 100 – לוח הכפל',icon:'✖️',c:'#ff4fa3',cd:'#c2366f',gen:genMul,subs:['prod','prod','div','div','missing','array','tf','which'],hard:['chainMul','chainMD','chainMD','cmpExpr']},
+ {id:'divis',name:'סימני התחלקות',sub:'ב-2, ב-5 וב-10',icon:'🔍',c:'#22c55e',cd:'#15803d',gen:genDiv,subs:['yn','yn','which','whichNot','both','digit'],hard:['both','notBoth','countDiv']},
+ {id:'word',name:'שאלות מילוליות',sub:'סיפורים עם מספרים',icon:'📖',c:'#ef4444',cd:'#b91c1c',gen:genWord,subs:WP.map((_,i)=>i),hard:[12,13,...WPH.map((_,i)=>'h'+i)]},
+ {id:'ang',name:'זוויות',sub:'שיום, השוואה וסרטוט',icon:'📐',c:'#eab308',cd:'#a16207',gen:genAng,subs:['name','name','compare','pick','draw','draw','clock','shape'],hard:['compareH','clock','shape']},
 ];
-function genN(t,n){
+/* n questions; the last hardN come from the topic's harder question types */
+function genN(t,n,hardN=0){
   const recent=new Set((DATA.recent&&DATA.recent[t.id])||[]);const used=new Set();const out=[];
-  let bag=[];const nextSub=()=>{if(!bag.length)bag=shuffle(t.subs);return bag.pop()};
-  let tries=0;let sub=nextSub();
-  while(out.length<n&&tries<600){tries++;let q;
-    try{q=t.gen(sub)}catch(e){console.error(e);sub=nextSub();continue}
-    if(!q||used.has(q.key)||(recent.has(q.key)&&tries<400))continue;
-    used.add(q.key);q.topic=t.id;out.push(q);sub=nextSub();}
+  const fill=(subs,count,hard)=>{let bag=[];const nextSub=()=>{if(!bag.length)bag=shuffle(subs);return bag.pop()};
+    let tries=0,got=0,sub=nextSub();
+    while(got<count&&tries<600){tries++;let q;
+      try{q=t.gen(sub)}catch(e){console.error(e);sub=nextSub();continue}
+      if(!q||used.has(q.key)||(recent.has(q.key)&&tries<400))continue;
+      used.add(q.key);q.topic=t.id;if(hard)q.hard=true;out.push(q);got++;sub=nextSub();}};
+  const h=t.hard?Math.min(hardN,n):0;
+  fill(t.subs,n-h,false);if(h)fill(t.hard,h,true);
   return out;
 }
 
@@ -829,10 +979,11 @@ function renderHome(){
      <span class="ic">${t.icon}</span><span class="nm">${t.name}</span><span class="sb">${t.sub}</span><div class="st">${starsHTML(DATA.best[t.id]||0)}</div></button>`).join('')}</div>
    <button class="bigbtn" data-topic="mix">🏆 אתגר מסכם – כל הנושאים <span style="font-size:16px">${starsHTML(DATA.best.mix||0)}</span></button>
    <div class="row"><button class="btn store" id="goStore">🛍️ החנות של ינשופי</button><button class="btn ward" id="goWardrobe">👗 ארון הבגדים</button></div>
-   <div class="row"><button class="btn" id="goStickers">🎁 המדבקות שלי</button></div>
+   <div class="row"><button class="btn" id="goStickers">🎁 המדבקות שלי</button><button class="btn" id="goSettings">⚙️ הגדרות</button></div>
    <p class="disclaimer">התרגילים במשחק זה עלולים להיות קשים מדי, קלים מדי, או מחוץ לחומר, וייתכן שיש בו גם באגים, אז מומלץ ללמוד את הנושאים מהחומר של הכתה ולהשתמש במשחק ככלי עזר לתרגול.</p>`;
   $('home').querySelectorAll('[data-topic]').forEach(b=>b.onclick=()=>{SFX.click();startRound(b.dataset.topic)});
   $('goStickers').onclick=()=>{SFX.click();renderStickers();show('stickers')};
+  $('goSettings').onclick=()=>{SFX.click();renderSettings();show('settings')};
   $('goStore').onclick=()=>{SFX.click();renderStore();show('store')};
   $('goWardrobe').onclick=()=>{SFX.click();renderWardrobe();show('wardrobe')};
   $('homeOwl').onclick=()=>{owlMood($('homeOwl'),'happy');SFX.good()};
@@ -843,7 +994,7 @@ function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.to
 let G_={};
 function startRound(tid){
   const isMix=tid==='mix';
-  const qs=isMix?shuffle(TOPICS.flatMap(t=>genN(t,2))):genN(TOPICS.find(t=>t.id===tid),10);
+  const qs=isMix?genMix():genN(TOPICS.find(t=>t.id===tid),10,DATA.settings.level==='classic'?0:3);
   G_={tid,qs,i:0,score:0,correct:0,first:0,res:[],streak:0,coinsStart:DATA.coins};
   const t=TOPICS.find(t=>t.id===tid);
   $('tname').textContent=isMix?'🏆 אתגר מסכם':`${t.icon} ${t.name}`;
@@ -856,7 +1007,7 @@ function renderQ(){
   const q=G_.qs[G_.i];q.attempts=0;q.hintsShown=0;q.done=false;
   q.max=q.type==='choice'&&q.choices.length<=2?1:2;
   const tp=TOPICS.find(t=>t.id===q.topic);
-  $('qnum').textContent=`שאלה ${G_.i+1} מתוך ${G_.qs.length}`+(G_.tid==='mix'?` · ${tp.icon} ${tp.name}`:'');
+  $('qnum').textContent=`שאלה ${G_.i+1} מתוך ${G_.qs.length}`+(G_.tid==='mix'?` · ${tp.icon} ${tp.name}`:'')+(q.hard?' · 💪 שאלת אתגר':'');
   $('prompt').innerHTML=q.prompt;$('visual').innerHTML=q.visual||'';$('hints').innerHTML='';
   $('feedback').classList.add('hidden');$('gcoins').textContent=DATA.coins+G_.score;
   updHintBtn();renderProgress();renderAnswer(q);
@@ -954,6 +1105,15 @@ function initDraw(q){
   set(q.start);
 }
 
+/* final test: mixN questions spread over all topics; the last mixHard are harder */
+function genMix(){const S=DATA.settings,N=S.mixN,H=Math.min(S.mixHard,7,N);
+  const cnt=Object.fromEntries(TOPICS.map(t=>[t.id,{n:0,h:0}]));
+  const spread=(k,f)=>{let ord=[];for(let i=0;i<k;i++){if(!ord.length)ord=shuffle(TOPICS.map(t=>t.id));cnt[ord.pop()][f]++}};
+  spread(N-H,'n');spread(H,'h');
+  const all=TOPICS.flatMap(t=>{const c=cnt[t.id];return c.n+c.h?genN(t,c.n+c.h,c.h):[]});
+  return [...shuffle(all.filter(q=>!q.hard)),...shuffle(all.filter(q=>q.hard))];
+}
+
 /* ================== end ================== */
 function endRound(){
   const n=G_.qs.length,pct=G_.score/(n*10);const stars=pct>=.85?3:pct>=.6?2:pct>=.3?1:0;
@@ -983,6 +1143,28 @@ function renderStickers(){
    <div class="bubble-home">כל סיבוב עם <b>3 כוכבים</b> ⭐⭐⭐ פותח מדבקה חדשה! אספתם ${DATA.stickers.length} מתוך ${STICKERS.length}.</div>
    <div class="sgrid">${STICKERS.map(s=>DATA.stickers.includes(s)?`<div>${s}</div>`:'<div class="lock">❓</div>').join('')}</div>`;
   $('stBack').onclick=()=>{renderHome();show('home')};
+}
+function renderSettings(){const S=DATA.settings;
+  $('settings').innerHTML=`<div class="topbar"><button class="xbtn" id="setBack" aria-label="חזרה לתפריט">✕</button><h2 class="ttl">⚙️ הגדרות</h2></div>
+   <div class="setcard"><h3>📚 רמת השאלות בנושאים</h3><p>בכל סיבוב של נושא יש 10 שאלות.</p>
+    <div class="seg"><button data-level="classic" class="${S.level==='classic'?'on':''}">🙂 רגילה<small>כל 10 השאלות ברמה רגילה</small></button>
+     <button data-level="challenge" class="${S.level==='challenge'?'on':''}">💪 עם אתגר<small>3 השאלות האחרונות קשות יותר</small></button></div></div>
+   <div class="setcard" id="mixCard"></div>`;
+  $('setBack').onclick=()=>{SFX.click();renderHome();show('home')};
+  $('settings').querySelectorAll('[data-level]').forEach(b=>b.onclick=()=>{S.level=b.dataset.level;save();SFX.click();renderSettings()});
+  renderMixCard();
+}
+function renderMixCard(changed=[]){const S=DATA.settings,N=S.mixN,H=Math.min(S.mixHard,7,N),first=N-H+1;
+  const pills=(key,vals,cur,cls='')=>`<div class="npills ${cls}" style="--cols:${vals.length}">${vals.map(v=>`<button data-${key}="${v}" class="${v===cur?'on':''} ${v===0?'none':''}">${v===0?'בלי':v}</button>`).join('')}</div>`;
+  $('mixCard').innerHTML=`<h3>🏆 האתגר המסכם</h3>
+   <div class="setsub">🏁 כמה שאלות במבחן?</div>${pills('n',[14,15,16,17,18,19,20],N)}
+   <div class="setsub">💪 כמה מהן שאלות אתגר? <span style="font-weight:500;color:var(--ink2);font-size:13px">(הן תמיד בסוף)</span></div>${pills('h',[0,1,2,3,4,5,6,7],H,'hard')}
+   <div class="preview"><div class="pstrip">${Array.from({length:N},(_,k)=>k+1).map(q=>`<i class="${q>=first?'h':''} ${changed.includes(q)?'pop':''}"></i>`).join('')}<b>🏁</b></div>
+    <div class="pcap">${N-H} שאלות רגילות${H?` ואז <span class="hh">${H===1?`שאלה ${N} – שאלת אתגר 💪`:`שאלות ${first} עד ${N} – שאלות אתגר 💪`}</span>`:' · בלי שאלות אתגר'}</div></div>`;
+  $('mixCard').querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>{const n=+b.dataset.n,old=N;S.mixN=n;save();SFX.click();
+    renderMixCard(n>old?Array.from({length:n-old},(_,k)=>old+k+1):[])});
+  $('mixCard').querySelectorAll('[data-h]').forEach(b=>b.onclick=()=>{const h=+b.dataset.h;S.mixHard=h;save();SFX.click();
+    const a=Math.min(first,N-h+1);renderMixCard(Array.from({length:N-a+1},(_,k)=>a+k))});
 }
 /* ================== store & wardrobe ================== */
 const progDots=cat=>`<div class="sprog">${ITEMS.filter(i=>i.cat===cat).map(i=>`<i class="${DATA.owned.includes(i.id)?'on':''}"></i>`).join('')}</div>`;
