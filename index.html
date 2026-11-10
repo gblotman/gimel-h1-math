@@ -117,12 +117,13 @@ button{font-family:inherit;touch-action:manipulation;cursor:pointer;color:inheri
 .visual:empty{display:none}
 .bignum{font-size:clamp(34px,9vw,52px);font-weight:900;letter-spacing:3px;direction:ltr;unicode-bidi:isolate;color:var(--purple);
   background:var(--soft);padding:6px 22px;border-radius:20px;display:inline-flex;align-items:center;gap:12px}
-.bignum .slot{display:inline-grid;place-items:center;width:1.3em;height:1.3em;border-radius:50%;border:4px dashed #ff4fa3;color:#ff4fa3;font-size:.7em}
+.bignum .slot{display:inline-grid;place-items:center;width:1.3em;height:1.3em;border-radius:50%;border:max(2px,.11em) dashed #ff4fa3;line-height:1;color:#ff4fa3;font-size:.7em}
 .digit-tiles{display:flex;gap:10px;direction:ltr}
 .digit-tiles b{width:58px;height:64px;display:grid;place-items:center;font-size:34px;background:#fff7d6;border:3px solid var(--yellow);border-radius:16px;box-shadow:0 4px 0 var(--yellowd)}
 .digit-tiles.nums{flex-wrap:wrap;justify-content:center}
 .digit-tiles.nums b{width:auto;min-width:58px;padding:0 10px;font-size:26px}
-.bignum.long{font-size:clamp(22px,6.2vw,40px);letter-spacing:1px;gap:8px;flex-wrap:wrap;justify-content:center}
+.bignum.long{font-size:clamp(22px,6.2vw,40px);letter-spacing:1px;gap:8px;justify-content:center}
+.bignum{white-space:nowrap;max-width:none}
 .seq{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px;direction:rtl}
 .seq .c{min-width:58px;height:58px;padding:0 8px;display:grid;place-items:center;border-radius:16px;background:#e3f8fc;border:3px solid #00b8d4;font-weight:900;font-size:22px;direction:ltr}
 .seq .c.q{background:#fff0f7;border:3px dashed #ff4fa3;color:#ff4fa3}
@@ -317,7 +318,7 @@ h2.ttl{font-size:26px;font-weight:900;margin:4px 0}
       <div class="prompt" id="prompt"></div>
       <div class="visual" id="visual"></div>
       <div class="hints" id="hints"></div>
-      <button class="hintbtn" id="hintBtn">💡 רמז</button>
+      <button class="hintbtn" id="hintBtn">💡 עזרה</button>
     </div>
     <div class="answer" id="answerArea"></div>
     <div class="feedback hidden" id="feedback"></div>
@@ -965,7 +966,7 @@ function owlMood(el,m){const o=el.querySelector('.owl');if(!o)return;o.classList
 const MSG={good:['מעולה! 🌟','בול! 🎯','כל הכבוד! 👏','וואו, איזה מוח! 🧠','פצצה! 💥','מדהים! 🚀','נהדר! ✨','אלופים! 🏆','יש! 🎉'],
   retry:['כמעט! ננסה שוב? 💪','לא נורא – עוד ניסיון אחד! 🙂','אולי רמז יעזור? 💡 אפשר לנסות שוב.'],
   fail:['לא נורא! ככה לומדים 💜','טעויות עוזרות לנו לגדול 🌱','בפעם הבאה זה יצליח! 💪'],
-  start:['יאללה, מתחילים! 🚀','אני פה לעזור – יש כפתור רמז 💡','בהצלחה! קוראים לאט ובזהירות 🧐'],
+  start:['יאללה, מתחילים! 🚀','אני פה לעזור – יש כפתור עזרה 💡','בהצלחה! קוראים לאט ובזהירות 🧐'],
   think:['חושבים... 🤔 קחו את הזמן.','שאלה מעניינת! 🧐','אתם יכולים! 💪','קודם קוראים טוב את השאלה 👀']};
 const STICKERS=['🦄','🐙','🦖','🚀','🍩','🐼','🌈','🦊','🐳','🍉','🎸','🐝','🦋','🐸','🍕','⚽','🎨','🐧','🦁','🍦','🌵','🐢','🎈','🦉','🐬','🍓','🌻','🐨','🛸','🧁'];
 
@@ -977,7 +978,7 @@ function renderHome(){
   $('home').innerHTML=`
    <header class="hero"><div class="owl-wrap" id="homeOwl">${owlSVG()}</div>
     <div><h1>פרופסור ינשופי</h1><p>מתאמנים למבחן של כיתה ג׳ עם ינשופי 🦉</p></div></header>
-   <div class="bubble-home">${d>0?`היי! נשארו עוד <b>${d} ימים</b> למבחן. `:''}בחרו נושא – בכל סיבוב 10 שאלות חדשות. אם נתקעים, לוחצים על 💡 רמז!</div>
+   <div class="bubble-home">${d>0?`היי! נשארו עוד <b>${d} ימים</b> למבחן. `:''}בחרו נושא – בכל סיבוב 10 שאלות חדשות. אם נתקעים, לוחצים על 💡 עזרה!</div>
    <div class="stats"><span class="chip">⭐ ${total}/${(TOPICS.length+1)*3}</span><span class="chip">🪙 ${DATA.coins}</span><span class="chip">🎁 ${DATA.stickers.length}/${STICKERS.length}</span>${d>0?`<span class="chip count">📅 עוד ${d} ימים</span>`:''}</div>
    <div class="topics">${TOPICS.map(t=>`<button class="tcard" style="--c:${t.c};--cd:${t.cd}" data-topic="${t.id}">
      <span class="ic">${t.icon}</span><span class="nm">${t.name}</span><span class="sb">${t.sub}</span><div class="st">${starsHTML(DATA.best[t.id]||0)}</div></button>`).join('')}</div>
@@ -1007,12 +1008,17 @@ function startRound(tid){
 }
 function say(txt,mood){$('bubble').innerHTML=txt;$('bubble').style.animation='none';void $('bubble').offsetWidth;$('bubble').style.animation='';if(mood)owlMood($('owlMini'),mood)}
 function renderProgress(){$('progress').innerHTML=G_.qs.map((q,i)=>`<i class="${G_.res[i]||(i===G_.i?'cur':'')}"></i>`).join('')}
+/* keep an exercise on one line: shrink its font until it fits the card */
+function fitBig(){document.querySelectorAll('#visual .bignum').forEach(el=>{el.style.fontSize='';
+  const avail=el.parentElement.clientWidth;if(!avail||el.offsetWidth<=avail)return;
+  let fs=parseFloat(getComputedStyle(el).fontSize);while(el.offsetWidth>avail&&fs>16){fs-=1;el.style.fontSize=fs+'px'}})}
+addEventListener('resize',fitBig);
 function renderQ(){
   const q=G_.qs[G_.i];q.attempts=0;q.hintsShown=0;q.done=false;
   q.max=q.type==='choice'&&q.choices.length<=2?1:2;
   const tp=TOPICS.find(t=>t.id===q.topic);
   $('qnum').innerHTML=`שאלה ${G_.i+1} מתוך ${G_.qs.length}`+(G_.tid==='mix'?` · ${tp.icon} ${tp.name}`:'')+(q.hard?`<span class="hardtag">💪 שאלת אתגר · עד ${PTS.hard[0]} 🪙</span>`:'');
-  $('prompt').innerHTML=q.prompt;$('visual').innerHTML=q.visual||'';$('hints').innerHTML='';
+  $('prompt').innerHTML=q.prompt;$('visual').innerHTML=q.visual||'';$('hints').innerHTML='';fitBig();
   $('feedback').classList.add('hidden');$('gcoins').textContent=DATA.coins+G_.score;
   updHintBtn();renderProgress();renderAnswer(q);
   $('visual').querySelectorAll('[data-corner]').forEach(b=>b.onclick=()=>{const sc=b.closest('.corner-scope');sc.classList.toggle('show-corner');b.classList.toggle('on');SFX.click()});
@@ -1021,7 +1027,7 @@ function renderQ(){
   const st=$('streak');st.classList.toggle('on',G_.streak>=2);st.textContent=`🔥 ${G_.streak}`;
 }
 function updHintBtn(){const q=G_.qs[G_.i],b=$('hintBtn'),left=q.hints.length-q.hintsShown;
-  b.disabled=left<=0||q.done;b.textContent=left>0?`💡 רמז (${left} נשארו)`:'💡 נגמרו הרמזים';b.classList.remove('glow')}
+  b.disabled=left<=0||q.done;b.textContent=left>0?`💡 עזרה (${left} נשארו)`:'💡 נגמרה העזרה';b.classList.remove('glow')}
 $('hintBtn').onclick=()=>{const q=G_.qs[G_.i];if(q.hintsShown>=q.hints.length||q.done)return;
   const h=q.hints[q.hintsShown++];const d=document.createElement('div');d.className='hint';d.innerHTML=`<span class="hn">💡${q.hintsShown}</span><span>${h}</span>`;
   $('hints').appendChild(d);SFX.hint();say(P(['הנה רמז קטן! 💡','רמז בדרך… 🦉','בואו נחשוב יחד 🤔']),'think');updHintBtn();d.scrollIntoView({behavior:'smooth',block:'nearest'})};
@@ -1229,7 +1235,7 @@ function renderWardrobe(){
 function openModal(h){$('mbox').innerHTML=h;$('modal').classList.remove('hidden')}
 function closeModal(){$('modal').classList.add('hidden')}
 $('modal').onclick=e=>{if(e.target.id==='modal')closeModal()};
-const bgmList=[1,2,3,4,5].map(n=>'music/song'+n+'.mp3');for(let i=bgmList.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[bgmList[i],bgmList[j]]=[bgmList[j],bgmList[i]]}let bgmI=0;const bgm=new Audio(bgmList[0]);bgm.volume=.35;bgm.onended=()=>{bgmI=(bgmI+1)%bgmList.length;bgm.src=bgmList[bgmI];bgm.play().catch(()=>{})};
+const bgmList=[1,2,3,4,5,6,7].map(n=>'music/song'+n+'.mp3');for(let i=bgmList.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[bgmList[i],bgmList[j]]=[bgmList[j],bgmList[i]]}let bgmI=0;const bgm=new Audio(bgmList[0]);bgm.volume=.35;bgm.onended=()=>{bgmI=(bgmI+1)%bgmList.length;bgm.src=bgmList[bgmI];bgm.play().catch(()=>{})};
 function skipSong(d){bgmI=(bgmI+d+bgmList.length)%bgmList.length;bgm.src=bgmList[bgmI];bgm.play().catch(()=>{})}
 function applyMusic(){if(DATA.music)bgm.play().catch(()=>{});else bgm.pause()}
 function syncAudioBtns(){$('soundBtn').textContent=DATA.sound?'🔊':'🔇';$('soundBtn').classList.toggle('off',!DATA.sound);$('musicBtn').classList.toggle('off',!DATA.music);document.querySelector('.musicgrp').classList.toggle('muted',!DATA.music)}
