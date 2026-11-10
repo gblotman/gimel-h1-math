@@ -173,40 +173,41 @@ button{font-family:inherit;touch-action:manipulation;cursor:pointer;color:inheri
 
 .answer{margin-top:14px}
 /* carry questions: regular / step-by-step toggle */
-.mtog{display:flex;justify-content:center;margin:2px 0 8px}
+.qmeta{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px 8px;margin:2px 0 6px}
+.qmeta .qnum{margin:0}
+.mtog{display:flex;margin-inline-start:auto}
 .mtog:empty{display:none}
-.mtog .w{display:inline-flex;background:var(--soft);border-radius:999px;padding:4px;gap:4px;border:2px solid #e6e0ff}
-.mtog button{white-space:nowrap;border:none;background:transparent;border-radius:999px;padding:7px 14px;font-size:15px;font-weight:800;color:var(--ink2);font-family:inherit;cursor:pointer}
+.mtog .w{display:inline-flex;background:var(--soft);border-radius:999px;padding:3px;gap:3px;border:2px solid #e6e0ff}
+.mtog button{white-space:nowrap;border:none;background:transparent;border-radius:999px;padding:4px 9px;font-size:13px;font-weight:800;color:var(--ink2);font-family:inherit;cursor:pointer}
 .mtog button.on{background:#fff;color:var(--purpled);box-shadow:0 3px 0 #d8d0fb}
 .mtog button:disabled{cursor:default}
-.pv{direction:ltr;display:grid;grid-template-columns:34px 58px 58px;justify-content:center;column-gap:8px;align-items:center;font-weight:900;margin:0 auto 4px}
-.pv .h{font-size:13px;color:var(--ink2);text-align:center;font-weight:800}
-.pv .d{font-size:34px;color:var(--purple);text-align:center;line-height:1.15}
-.pv .op{font-size:30px;color:var(--purple);text-align:center}
+:root{--tens:#1e6fd9;--tensbg:#e3efff;--units:#ef7d00;--unitsbg:#fff1df}
+.tc{color:var(--tens)}.uc{color:var(--units)}
+.pv{direction:ltr;display:grid;grid-template-columns:30px 62px 62px;justify-content:center;column-gap:10px;row-gap:2px;align-items:center;font-weight:900;margin:0 auto}
+.pv .h{font-size:13px;font-weight:800;text-align:center;border-radius:999px;padding:2px 0;color:#fff}
+.pv .h.t{background:var(--tens)}.pv .h.u{background:var(--units)}
+.pv .d{font-size:31px;text-align:center;line-height:1.1}
+.pv .d.t{color:var(--tens)}.pv .d.u{color:var(--units)}
+.pv .d.x{text-decoration:line-through;text-decoration-thickness:3px;opacity:.35}
+.pv .op{font-size:30px;color:var(--ink2);text-align:center}
+.pv .line{grid-column:1/4;height:4px;border-radius:2px;background:var(--ink2);opacity:.5;margin:2px 0 4px}
 .pv.n3 .d,.pv.n3 .op{font-size:27px;line-height:1.05}
-.pv.n3 .res{height:42px;font-size:26px}
-.pv .line{grid-column:1/4;height:4px;border-radius:2px;background:var(--purple);opacity:.6;margin:2px 0 4px}
-.pv .carry{justify-self:center;width:26px;height:26px;border-radius:50%;border:3px dashed #ff8a00;color:#ff8a00;display:grid;place-items:center;font-size:16px;font-weight:900;visibility:hidden}
-.pv .carry.show{visibility:visible}
-.pv .carry.w{width:auto;min-width:26px;padding:0 5px;border-radius:12px}
-.pv .d.x{text-decoration:line-through;text-decoration-thickness:3px;opacity:.4}
-.pv .carry.on{border-style:solid;background:#fff3d6}
-.pv .carry.glow{box-shadow:0 0 0 6px rgba(255,138,0,.3)}
-.pv .res{justify-self:center;width:52px;height:48px;border-radius:14px;border:3px dashed #d8d0fb;display:grid;place-items:center;font-size:30px;color:#cfc6f5;background:#fff}
-.pv .res.fill{border-style:solid;border-color:var(--green);color:var(--greend);background:#dcfce7}
-.pv .res.bad{border-style:solid;border-color:var(--red);color:var(--redd);background:#fff0f3}
-.srow{display:flex;align-items:center;justify-content:center;gap:8px;font-size:17px;font-weight:700;border-radius:14px;padding:7px 10px;color:var(--ink);background:#fff;border:3px solid var(--purple);max-width:380px;margin:6px auto 0}
-.srow.err{background:#fff0f3;border-color:var(--red)}
-.srow.ok{background:#dcfce7;border-color:var(--green)}
-.srow .n{flex:0 0 auto;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:13px;background:#e6e0ff;color:var(--purpled)}
-.srow.ok .n{background:var(--green);color:#fff}
-.box{display:inline-grid;place-items:center;min-width:38px;height:32px;padding:0 5px;border-radius:9px;background:#fff;border:2.5px solid #d8d0fb;font-weight:900;direction:ltr;margin:0 2px;font-size:18px}
-.box.act{border-color:var(--purple);box-shadow:0 0 0 3px rgba(124,77,255,.18)}
-.box.q{color:#cfc6f5}
-.box.ok{border-color:var(--green);background:#dcfce7;color:var(--greend)}
-.box.bad{border-color:var(--red);background:#fff0f3;color:var(--redd)}
-.box.shown{border-color:#ff8a00;background:#fff3d6;color:#c45a00}
-.box.shake{animation:shake .45s}
+.pv .t,.pv .u{transition:opacity .25s}
+.pv.dimT .t,.pv.dimU .u{opacity:.3}
+.cell{justify-self:center;width:52px;height:44px;border-radius:13px;display:grid;place-items:center;font-size:27px;font-weight:900;direction:ltr;border:3px dashed transparent}
+.cell.sm{width:40px;height:30px;font-size:18px;border-radius:10px;margin-bottom:2px}
+.cell.none{visibility:hidden}
+.cell.idle.t{border-color:#bcd5f7}.cell.idle.u{border-color:#f7d3a6}
+.cell.idle.sm{border-color:transparent}
+.cell.act{border-style:solid;background:#fff;animation:cellpulse 1.2s ease-in-out infinite}
+.cell.act.t{border-color:var(--tens);color:var(--tens)}.cell.act.u{border-color:var(--units);color:var(--units)}
+@keyframes cellpulse{50%{box-shadow:0 0 0 6px rgba(124,77,255,.15)}}
+.cell.ok{border-style:solid}
+.cell.ok.t{border-color:var(--tens);background:var(--tensbg);color:var(--tens)}.cell.ok.u{border-color:var(--units);background:var(--unitsbg);color:var(--units)}
+.cell.bad{border-style:solid;border-color:var(--red);background:#fff0f3;color:var(--redd)}
+.cell.shown{border-style:solid;border-color:#9b8fd0;background:#f1edff;color:var(--purpled)}
+.cell.glow{box-shadow:0 0 0 6px rgba(30,111,217,.3)}
+.cell.shake{animation:shake .45s}
 .ansbox{background:#fff;border-radius:20px;height:66px;display:flex;align-items:center;justify-content:center;font-size:38px;font-weight:900;direction:ltr;
   box-shadow:inset 0 -4px 0 rgba(45,34,80,.08);border:3px solid #e6e0ff;max-width:360px;margin:0 auto 10px;letter-spacing:2px}
 .ansbox.empty::after{content:"?";color:#cfc6f5}
@@ -349,8 +350,7 @@ h2.ttl{font-size:26px;font-weight:900;margin:4px 0}
     <div class="progress" id="progress"></div>
     <div class="qcard">
       <div class="qhead"><div class="owl-mini" id="owlMini"></div><div class="bubble" id="bubble"></div></div>
-      <div class="qnum" id="qnum"></div>
-      <div class="mtog" id="modeTog"></div>
+      <div class="qmeta"><div class="qnum" id="qnum"></div><div class="mtog" id="modeTog"></div></div>
       <div class="prompt" id="prompt"></div>
       <div class="visual" id="visual"></div>
       <div class="hints" id="hints"></div>
@@ -1040,7 +1040,7 @@ function startRound(tid){
   const t=TOPICS.find(t=>t.id===tid);
   $('tname').textContent=isMix?'🏆 אתגר מסכם':`${t.icon} ${t.name}`;
   $('owlMini').innerHTML=owlSVG();
-  show('game');renderQ();say(P(MSG.start));
+  show('game');renderQ();if(!stepMode(G_.qs[0]))say(P(MSG.start));
 }
 function say(txt,mood){$('bubble').innerHTML=txt;$('bubble').style.animation='none';void $('bubble').offsetWidth;$('bubble').style.animation='';if(mood)owlMood($('owlMini'),mood)}
 function renderProgress(){$('progress').innerHTML=G_.qs.map((q,i)=>`<i class="${G_.res[i]||(i===G_.i?'cur':'')}"></i>`).join('')}
@@ -1055,64 +1055,59 @@ function showQ(q){
   $('modeTog').innerHTML=q.steps?`<div class="w"><button data-m="0" class="${stepMode(q)?'':'on'}">✏️ רגיל</button><button data-m="1" class="${stepMode(q)?'on':''}">🧩 בשלבים</button></div>`:'';
   $('modeTog').querySelectorAll('button').forEach(b=>b.onclick=()=>setMode(q,b.dataset.m==='1'));
   $('hints').innerHTML='';$('hintBtn').style.display=stepMode(q)?'none':'';
-  if(stepMode(q)){if(!q.st)q.st={b:0,typed:'',wrong:0,shown:[]};renderSteps(q)}
+  if(stepMode(q)){const fresh=!q.st;if(fresh)q.st={b:0,typed:'',wrong:0,shown:[]};renderSteps(q);if(fresh)insSay(q)}
   else{$('prompt').innerHTML=q.prompt;$('visual').innerHTML=q.visual||'';fitBig();renderAnswer(q)}
   updHintBtn();updTog(q);
 }
 /* steps can't be turned off once the table has part of the answer */
 function updTog(q){$('modeTog').querySelectorAll('button').forEach(b=>b.disabled=q.done||(stepMode(q)&&q.st&&q.st.b>0))}
 function setMode(q,on){if(q.done||!!DATA.settings.steps===on||(stepMode(q)&&q.st&&q.st.b>0))return;
-  DATA.settings.steps=on;save();SFX.click();showQ(q);say(on?'נפתור צעד אחר צעד 🧩':P(MSG.think))}
+  DATA.settings.steps=on;save();SFX.click();showQ(q);if(!on)say(P(MSG.think))}
 /* the boxes the child fills, in order */
 const U=n=>n%10,T=n=>Math.floor(n/10),sum=a=>a.reduce((x,y)=>x+y,0);
 const isSub=q=>q.steps.op==='-';
-/* the boxes the child fills, in order (n = step number) */
+/* the cells the child fills, in order. pos: where in the table (above tens/units, result tens/units) */
 const stepBoxes=q=>{const N=q.steps.nums;
-  if(isSub(q)){const [a,b]=N;return [{n:1,ans:T(a)-1},{n:1,ans:U(a)+10},{n:2,ans:U(a)+10-U(b)},{n:3,ans:T(a)-1-T(b)}]}
-  const s=sum(N.map(U));return [{n:1,ans:s},{n:2,ans:T(s)},{n:2,ans:U(s)},{n:3,ans:sum(N.map(T))+T(s)}]};
-function renderSteps(q){const N=q.steps.nums,st=q.st,B=stepBoxes(q),sub=isSub(q),op=sub?'−':'+';
-  const box=i=>{const v=st.shown[i]!=null?st.shown[i]:i<st.b?B[i].ans:i===st.b?(st.typed||'?'):'?';
-    const c=st.shown[i]!=null?'shown':i<st.b?'ok':i===st.b?(st.bad?'bad':'act'+(st.typed?'':' q')):'q';return `<span class="box ${c}" id="sb${i}">${v}</span>`};
-  const cur=Math.min(st.b,B.length-1),step=B[cur].n,done=st.b>=B.length;
-  /* result row: units after the units step (box 2), tens at the end */
-  const uRes=st.b>=3?`<div class="res fill">${B[2].ans}</div>`:'<div class="res">?</div>';
-  const tRes=done?`<div class="res fill">${B[3].ans}</div>`:st.b===3&&st.bad?`<div class="res bad">${st.typed}</div>`:'<div class="res">?</div>';
-  let top,rows;
-  if(sub){const [a,b]=N,rg=st.b>=2;
-    top=`<div></div><div class="carry w ${rg?'show on':step===1?'show':''} ${st.glow?'glow':''}">${rg?B[0].ans:''}</div><div class="carry w ${rg?'show on':step===1?'show':''}">${rg?B[1].ans:''}</div>
-      <div></div><div class="d ${rg?'x':''}">${T(a)}</div><div class="d ${rg?'x':''}">${U(a)}</div>
-      <div class="op">−</div><div class="d">${T(b)}</div><div class="d">${U(b)}</div>`;
-    rows={1:`פורטים עשרת: <span class="eq">${a}</span> = ${box(0)} עשרות + ${box(1)} יחידות`,
-      2:`יחידות: <span class="eq">${B[1].ans} − ${U(b)} = ${box(2)}</span>`,
-      3:`עשרות: ${st.glow?`<span class="eq">? − ${T(b)} = ${box(3)}</span>`:done?`<span class="eq">${B[0].ans} − ${T(b)} = ${box(3)}</span>`:`כמה עשרות נשארו? ${box(3)}`}`};
-  }else{const ts=N.map(T).join(' + ');
-    top=`<div></div>${st.b>=2?`<div class="carry show on ${st.glow?'glow':''}">${B[1].ans}</div>`:`<div class="carry ${step===2?'show':''}"></div>`}<div></div>
-      ${N.map((n,i)=>`<div class="op">${i?'+':''}</div><div class="d">${T(n)}</div><div class="d">${U(n)}</div>`).join('')}`;
-    rows={1:`יחידות: <span class="eq">${N.map(U).join(' + ')} = ${box(0)}</span>`,2:`${B[0].ans} = ${box(1)} עשרת + ${box(2)} יחידות`,
-      3:`עשרות: ${st.glow?`<span class="eq">${ts} + ? = ${box(3)}</span>`:done?`<span class="eq">${B[1].ans} + ${ts} = ${box(3)}</span>`:`כמה עשרות ביחד? ${box(3)}`}`};}
-  $('prompt').innerHTML=`פתרו את התרגיל: <span class="eq" style="color:var(--purple)">${N.join(` ${op} `)}</span>`;
-  $('visual').innerHTML=`<div><div class="pv ${N.length>2?'n3':''}"><div></div><div class="h">עשרות</div><div class="h">יחידות</div>
-    ${top}<div class="line"></div><div></div>${tRes}${uRes}</div>
-    <div class="srow ${done?'ok':st.bad?'err':''}"><span class="n">${done?'✓':step}</span><span>${rows[step]}</span></div></div>`;
+  if(isSub(q)){const [a,b]=N;return [{pos:'cT',ans:T(a)-1},{pos:'cU',ans:U(a)+10},{pos:'rU',ans:U(a)+10-U(b)},{pos:'rT',ans:T(a)-1-T(b)}]}
+  const s=sum(N.map(U));return [{pos:'rU',ans:U(s),full:s},{pos:'cT',ans:T(s)},{pos:'rT',ans:sum(N.map(T))+T(s)}]};
+const stepIns=(q,box)=>{const N=q.steps.nums,eqs=t=>`<span class="eq">${t}</span>`;
+  if(isSub(q)){const [a,b]=N;return {cT:`אי אפשר להוריד ${U(b)} מ-${U(a)} – פורטים עשרת!<br>כמה <b class="tc">עשרות</b> נשארות?`,
+    cU:`ועכשיו כמה <b class="uc">יחידות</b> יש?`,rU:`<b class="uc">יחידות:</b> ${eqs(U(a)+10+' − '+U(b))}`,rT:`<b class="tc">עשרות:</b> כמה נשארו?`}[box.pos]}
+  return {rU:`<b class="uc">יחידות:</b> ${eqs(N.map(U).join(' + '))}`,cT:`כמה <b class="tc">עשרות</b> עוברות למעלה? ⬆️`,rT:`<b class="tc">עשרות:</b> חברו את כל העמודה`}[box.pos]};
+/* the owl says what to do now (optionally after a short remark) */
+const insSay=(q,pre,mood)=>{const B=stepBoxes(q);if(q.st.b<B.length)say((pre?pre+'<br>':'')+stepIns(q,B[q.st.b]),mood||'think')};
+function renderSteps(q){const N=q.steps.nums,st=q.st,B=stepBoxes(q),sub=isSub(q),done=st.b>=B.length,act=done?null:B[st.b];
+  const cell=pos=>{const i=B.findIndex(x=>x.pos===pos),col=pos[1]==='T'?'t':'u',sm=pos[0]==='c'?' sm':'';
+    if(i<0)return `<div class="cell ${col}${sm} none"></div>`;
+    let c,v;if(st.shown[i]!=null){c='shown';v=st.shown[i]}else if(i<st.b){c='ok';v=B[i].ans}
+    else if(i===st.b){c=st.bad?'bad':'act';v=st.typed||'?'}else{c='idle';v=''}
+    if(pos==='cT'&&st.glow&&i<st.b)c+=' glow';
+    return `<div class="cell ${col}${sm} ${c}" id="sb${i}">${v}</div>`};
+  const rg=sub&&st.b>=2;
+  const rows=N.map((n,i)=>`<div class="op">${i?(sub?'−':'+'):''}</div><div class="d t ${i===0&&rg?'x':''}">${T(n)}</div><div class="d u ${i===0&&rg?'x':''}">${U(n)}</div>`).join('');
+  const dim=!act?'':act.pos[1]==='U'&&act.pos!=='cU'?'dimT':act.pos==='rT'?'dimU':'';
+  $('prompt').innerHTML=`פתרו את התרגיל: <span class="eq" style="color:var(--purple)">${N.join(sub?' − ':' + ')}</span>`;
+  $('visual').innerHTML=`<div style="width:100%"><div class="pv ${N.length>2?'n3':''} ${dim}"><div></div><div class="h t">עשרות</div><div class="h u">יחידות</div>
+    <div></div>${cell('cT')}${cell('cU')}${rows}<div class="line"></div><div></div>${cell('rT')}${cell('rU')}</div></div>`;
   if(!$('answerArea').querySelector('.keypad')||$('answerArea').dataset.steps!=='1'){renderAnswer(q);$('answerArea').dataset.steps='1';const ab=$('ansbox');if(ab)ab.style.display='none'}
 }
 function stepKey(q,k){const st=q.st,B=stepBoxes(q),sub=isSub(q);if(st.b>=B.length)return;
   if(k==='del'){st.typed=st.typed.slice(0,-1);st.bad=false;renderSteps(q);return}
   if(k!=='ok'){if(st.typed.length<2)st.typed=(st.typed==='0'?'':st.typed)+k;st.bad=false;renderSteps(q);return}
   if(st.typed===''){shakeEl($('sb'+st.b));return}
-  const v=+st.typed,box=B[st.b];
+  const v=+st.typed,box=B[st.b],N=q.steps.nums;
+  /* the whole units sum typed into the units cell: guide, don't count as a mistake */
+  if(!sub&&box.pos==='rU'&&v===box.full){st.typed='';say('בכל תא נכנסת ספרה אחת! כאן כותבים רק את היחידות ☝️','think');renderSteps(q);shakeEl($('sb'+st.b));return}
   if(v===box.ans){st.b++;st.typed='';st.wrong=0;st.bad=false;st.glow=false;SFX.good();
-    if(sub)say(st.b===2?'פרטנו עשרת ל-10 יחידות 🔄':P(MSG.think),'think');
-    else if(st.b===2)say('יש המרה! העשרת עוברת למעלה ⬆️','think');else if(st.b===1)say(box.ans>=10?'יותר מ-10 יחידות – יש המרה! 🔄':P(MSG.think),'think');
-    renderSteps(q);updTog(q);if(st.b>=B.length)finishSteps(q);return}
+    renderSteps(q);if(st.b<B.length)insSay(q,sub&&st.b===2?'פרטנו עשרת ל-10 יחידות 🔄':!sub&&st.b===1?'נכון! ✨':!sub&&st.b===2?'העשרת עלתה למעלה ⬆️':'');updTog(q);if(st.b>=B.length)finishSteps(q);return}
   q.mist=true;st.wrong++;SFX.bad();G_.streak=0;
-  const N=q.steps.nums,carryForgot=box.n===3&&(sub?v===T(N[0])-T(N[1]):v===sum(N.map(T)));
+  const carryForgot=box.pos==='rT'&&(sub?v===T(N[0])-T(N[1]):v===sum(N.map(T)));
   if(st.wrong>=2){st.shown[st.b]=box.ans;st.b++;st.typed='';st.wrong=0;st.bad=false;st.glow=false;
-    say('לא נורא – הנה המספר הנכון, ממשיכים 💜','sad');renderSteps(q);updTog(q);if(st.b>=B.length)finishSteps(q);return}
+    renderSteps(q);insSay(q,'לא נורא – הנה המספר הנכון, ממשיכים 💜','sad');updTog(q);if(st.b>=B.length)finishSteps(q);return}
   st.bad=true;st.glow=carryForgot;
-  say(carryForgot?(sub?'שכחנו שפרטנו עשרת ☝️':'שכחנו את העשרת שעברה ☝️')
-    :sub&&box.n===1?'פורטים עשרת אחת: עשרת אחת פחות, ו-10 יחידות יותר 💡'
-    :!sub&&box.n===2?'כל 10 יחידות הן עשרת אחת 💡':P(MSG.retry),'sad');
+  insSay(q,carryForgot?(sub?'שכחנו שפרטנו עשרת ☝️':'שכחנו את העשרת שעלתה למעלה ☝️')
+    :sub&&box.pos[0]==='c'?'פורטים עשרת אחת: עשרת אחת פחות, ו-10 יחידות יותר 💡'
+    :!sub&&box.pos==='cT'?'כל 10 יחידות הן עשרת אחת 💡':P(MSG.retry),'sad');
   renderSteps(q);shakeEl($('sb'+st.b));updTog(q);
   setTimeout(()=>{if(q.st&&q.st.bad&&q.st.typed===String(v)){q.st.typed='';renderSteps(q)}},900);
 }
@@ -1202,7 +1197,7 @@ function feedback(good,title,body){const f=$('feedback');updTog(G_.qs[G_.i]);f.c
   $('answerArea').classList.add('over');const ab=$('ansbox');if(ab)ab.classList.add(good?'good':'bad');
   const last=G_.i>=G_.qs.length-1;
   f.innerHTML=`<div class="ft">${title}</div>${body?`<div>${body}</div>`:''}<button class="btn ${good?'green':'primary'}" id="nextBtn">${last?'🏁 לסיכום':'לשאלה הבאה ⬅'}</button>`;
-  $('nextBtn').onclick=()=>{SFX.click();if(last)endRound();else{G_.i++;renderQ();say(P(MSG.think));}};
+  $('nextBtn').onclick=()=>{SFX.click();if(last)endRound();else{G_.i++;renderQ();if(!stepMode(G_.qs[G_.i]))say(P(MSG.think));}};
   setTimeout(()=>f.scrollIntoView({behavior:'smooth',block:'nearest'}),60);
 }
 $('quit').onclick=()=>{SFX.click();openModal(`<h3>לצאת מהסיבוב? 🦉</h3><p>ההתקדמות בסיבוב הזה לא תישמר, והמטבעות שצברתם בסיבוב הזה ילכו לאיבוד. מטבעות מקבלים רק בסוף סיבוב שלם.</p>
