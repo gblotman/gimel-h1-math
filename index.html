@@ -176,6 +176,9 @@ button{font-family:inherit;touch-action:manipulation;cursor:pointer;color:inheri
 .ansbox.empty::after{content:"?";color:#cfc6f5}
 .ansbox.shake,.choice.shake{animation:shake .45s}
 @keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.answer.over .keypad,.answer.over .checkrow{display:none}
+.ansbox.good{background:#dcfce7;border-color:var(--green);color:var(--greend)}
+.ansbox.bad{background:#fff0f3;border-color:var(--red);color:var(--redd);text-decoration:line-through;text-decoration-thickness:3px}
 .keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;max-width:360px;margin:0 auto;direction:ltr}
 .key{border:none;height:58px;border-radius:16px;background:#fff;font-size:26px;font-weight:800;box-shadow:0 5px 0 rgba(45,34,80,.15);transition:transform .06s}
 .key:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(45,34,80,.15)}
@@ -1024,7 +1027,7 @@ $('hintBtn').onclick=()=>{const q=G_.qs[G_.i];if(q.hintsShown>=q.hints.length||q
   $('hints').appendChild(d);SFX.hint();say(P(['הנה רמז קטן! 💡','רמז בדרך… 🦉','בואו נחשוב יחד 🤔']),'think');updHintBtn();d.scrollIntoView({behavior:'smooth',block:'nearest'})};
 let typed='';
 function renderAnswer(q){
-  const A=$('answerArea');typed='';
+  const A=$('answerArea');typed='';A.classList.remove('over');
   if(q.type==='num'){
     A.innerHTML=`<div class="ansbox empty" id="ansbox"></div><div class="keypad">${[1,2,3,4,5,6,7,8,9].map(n=>`<button class="key" data-k="${n}">${n}</button>`).join('')}
      <button class="key del" data-k="del" aria-label="מחיקה">⌫</button><button class="key" data-k="0">0</button><button class="key ok" data-k="ok" aria-label="בדיקה">✓</button></div>`;
@@ -1083,6 +1086,8 @@ function submit(v,btn){
 function floatPlus(txt,el){const r=el.getBoundingClientRect();const d=document.createElement('div');d.className='plus';d.textContent=txt;
   d.style.left=(r.left+r.width/2-40)+'px';d.style.top=(r.top-10)+'px';document.body.appendChild(d);setTimeout(()=>d.remove(),1000);$('gcoins').textContent=DATA.coins+G_.score}
 function feedback(good,title,body){const f=$('feedback');f.className='feedback '+(good?'good':'bad');
+  /* question is over: hide the keypad / check button so the feedback sits right under the answer */
+  $('answerArea').classList.add('over');const ab=$('ansbox');if(ab)ab.classList.add(good?'good':'bad');
   const last=G_.i>=G_.qs.length-1;
   f.innerHTML=`<div class="ft">${title}</div>${body?`<div>${body}</div>`:''}<button class="btn ${good?'green':'primary'}" id="nextBtn">${last?'🏁 לסיכום':'לשאלה הבאה ⬅'}</button>`;
   $('nextBtn').onclick=()=>{SFX.click();if(last)endRound();else{G_.i++;renderQ();say(P(MSG.think));}};
