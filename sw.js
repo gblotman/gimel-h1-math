@@ -4,7 +4,7 @@ const CACHE = 'owl-math-' + VERSION;
 const CORE = ['./', 'index.html', 'manifest.webmanifest', 'favicon.svg',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];
 
-const MUSIC = [1, 2, 3, 4, 5, 6].map(n => 'music/song' + n + '.mp3');
+const MUSIC = [1, 2, 3, 4, 5, 6, 7].map(n => 'music/song' + n + '.mp3');
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c =>

@@ -1235,7 +1235,7 @@ function renderWardrobe(){
 function openModal(h){$('mbox').innerHTML=h;$('modal').classList.remove('hidden')}
 function closeModal(){$('modal').classList.add('hidden')}
 $('modal').onclick=e=>{if(e.target.id==='modal')closeModal()};
-const bgmList=[1,2,3,4,5,6].map(n=>'music/song'+n+'.mp3');for(let i=bgmList.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[bgmList[i],bgmList[j]]=[bgmList[j],bgmList[i]]}let bgmI=0;const bgm=new Audio(bgmList[0]);bgm.volume=.35;bgm.onended=()=>{bgmI=(bgmI+1)%bgmList.length;bgm.src=bgmList[bgmI];bgm.play().catch(()=>{})};
+const bgmList=[1,2,3,4,5,6,7].map(n=>'music/song'+n+'.mp3');for(let i=bgmList.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[bgmList[i],bgmList[j]]=[bgmList[j],bgmList[i]]}let bgmI=0;const bgm=new Audio(bgmList[0]);bgm.volume=.35;bgm.onended=()=>{bgmI=(bgmI+1)%bgmList.length;bgm.src=bgmList[bgmI];bgm.play().catch(()=>{})};
 function skipSong(d){bgmI=(bgmI+d+bgmList.length)%bgmList.length;bgm.src=bgmList[bgmI];bgm.play().catch(()=>{})}
 function applyMusic(){if(DATA.music)bgm.play().catch(()=>{});else bgm.pause()}
 function syncAudioBtns(){$('soundBtn').textContent=DATA.sound?'🔊':'🔇';$('soundBtn').classList.toggle('off',!DATA.sound);$('musicBtn').classList.toggle('off',!DATA.music);document.querySelector('.musicgrp').classList.toggle('muted',!DATA.music)}
