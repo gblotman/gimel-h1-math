@@ -317,7 +317,7 @@ h2.ttl{font-size:26px;font-weight:900;margin:4px 0}
       <div class="prompt" id="prompt"></div>
       <div class="visual" id="visual"></div>
       <div class="hints" id="hints"></div>
-      <button class="hintbtn" id="hintBtn">💡 רמז</button>
+      <button class="hintbtn" id="hintBtn">💡 עזרה</button>
     </div>
     <div class="answer" id="answerArea"></div>
     <div class="feedback hidden" id="feedback"></div>
@@ -965,7 +965,7 @@ function owlMood(el,m){const o=el.querySelector('.owl');if(!o)return;o.classList
 const MSG={good:['מעולה! 🌟','בול! 🎯','כל הכבוד! 👏','וואו, איזה מוח! 🧠','פצצה! 💥','מדהים! 🚀','נהדר! ✨','אלופים! 🏆','יש! 🎉'],
   retry:['כמעט! ננסה שוב? 💪','לא נורא – עוד ניסיון אחד! 🙂','אולי רמז יעזור? 💡 אפשר לנסות שוב.'],
   fail:['לא נורא! ככה לומדים 💜','טעויות עוזרות לנו לגדול 🌱','בפעם הבאה זה יצליח! 💪'],
-  start:['יאללה, מתחילים! 🚀','אני פה לעזור – יש כפתור רמז 💡','בהצלחה! קוראים לאט ובזהירות 🧐'],
+  start:['יאללה, מתחילים! 🚀','אני פה לעזור – יש כפתור עזרה 💡','בהצלחה! קוראים לאט ובזהירות 🧐'],
   think:['חושבים... 🤔 קחו את הזמן.','שאלה מעניינת! 🧐','אתם יכולים! 💪','קודם קוראים טוב את השאלה 👀']};
 const STICKERS=['🦄','🐙','🦖','🚀','🍩','🐼','🌈','🦊','🐳','🍉','🎸','🐝','🦋','🐸','🍕','⚽','🎨','🐧','🦁','🍦','🌵','🐢','🎈','🦉','🐬','🍓','🌻','🐨','🛸','🧁'];
 
@@ -977,7 +977,7 @@ function renderHome(){
   $('home').innerHTML=`
    <header class="hero"><div class="owl-wrap" id="homeOwl">${owlSVG()}</div>
     <div><h1>פרופסור ינשופי</h1><p>מתאמנים למבחן של כיתה ג׳ עם ינשופי 🦉</p></div></header>
-   <div class="bubble-home">${d>0?`היי! נשארו עוד <b>${d} ימים</b> למבחן. `:''}בחרו נושא – בכל סיבוב 10 שאלות חדשות. אם נתקעים, לוחצים על 💡 רמז!</div>
+   <div class="bubble-home">${d>0?`היי! נשארו עוד <b>${d} ימים</b> למבחן. `:''}בחרו נושא – בכל סיבוב 10 שאלות חדשות. אם נתקעים, לוחצים על 💡 עזרה!</div>
    <div class="stats"><span class="chip">⭐ ${total}/${(TOPICS.length+1)*3}</span><span class="chip">🪙 ${DATA.coins}</span><span class="chip">🎁 ${DATA.stickers.length}/${STICKERS.length}</span>${d>0?`<span class="chip count">📅 עוד ${d} ימים</span>`:''}</div>
    <div class="topics">${TOPICS.map(t=>`<button class="tcard" style="--c:${t.c};--cd:${t.cd}" data-topic="${t.id}">
      <span class="ic">${t.icon}</span><span class="nm">${t.name}</span><span class="sb">${t.sub}</span><div class="st">${starsHTML(DATA.best[t.id]||0)}</div></button>`).join('')}</div>
@@ -1021,7 +1021,7 @@ function renderQ(){
   const st=$('streak');st.classList.toggle('on',G_.streak>=2);st.textContent=`🔥 ${G_.streak}`;
 }
 function updHintBtn(){const q=G_.qs[G_.i],b=$('hintBtn'),left=q.hints.length-q.hintsShown;
-  b.disabled=left<=0||q.done;b.textContent=left>0?`💡 רמז (${left} נשארו)`:'💡 נגמרו הרמזים';b.classList.remove('glow')}
+  b.disabled=left<=0||q.done;b.textContent=left>0?`💡 עזרה (${left} נשארו)`:'💡 נגמרה העזרה';b.classList.remove('glow')}
 $('hintBtn').onclick=()=>{const q=G_.qs[G_.i];if(q.hintsShown>=q.hints.length||q.done)return;
   const h=q.hints[q.hintsShown++];const d=document.createElement('div');d.className='hint';d.innerHTML=`<span class="hn">💡${q.hintsShown}</span><span>${h}</span>`;
   $('hints').appendChild(d);SFX.hint();say(P(['הנה רמז קטן! 💡','רמז בדרך… 🦉','בואו נחשוב יחד 🤔']),'think');updHintBtn();d.scrollIntoView({behavior:'smooth',block:'nearest'})};
