@@ -109,6 +109,7 @@ button{font-family:inherit;touch-action:manipulation;cursor:pointer;color:inheri
 .owl-mini{width:58px;height:64px;flex:0 0 auto}
 .bubble{background:var(--soft);border-radius:18px;border-top-right-radius:4px;padding:9px 13px;font-weight:500;font-size:15px;line-height:1.45;flex:1;min-height:40px;animation:pop .3s}
 .qnum{font-size:13px;color:var(--ink2);font-weight:700;margin:2px 0 6px}
+.hardtag{display:inline-block;margin-inline-start:6px;padding:2px 9px;border-radius:999px;font-size:12px;color:#fff;background:linear-gradient(135deg,#ff8a00,#ff4fa3);box-shadow:0 2px 0 #c2366f;vertical-align:1px}
 .prompt{font-size:clamp(19px,4.6vw,24px);font-weight:700;line-height:1.5}
 .prompt .hl{color:#e8457d;font-weight:900}
 .eq{unicode-bidi:isolate;direction:ltr;display:inline-block;font-weight:800;letter-spacing:.5px}
@@ -1007,7 +1008,7 @@ function renderQ(){
   const q=G_.qs[G_.i];q.attempts=0;q.hintsShown=0;q.done=false;
   q.max=q.type==='choice'&&q.choices.length<=2?1:2;
   const tp=TOPICS.find(t=>t.id===q.topic);
-  $('qnum').textContent=`שאלה ${G_.i+1} מתוך ${G_.qs.length}`+(G_.tid==='mix'?` · ${tp.icon} ${tp.name}`:'')+(q.hard?' · 💪 שאלת אתגר':'');
+  $('qnum').innerHTML=`שאלה ${G_.i+1} מתוך ${G_.qs.length}`+(G_.tid==='mix'?` · ${tp.icon} ${tp.name}`:'')+(q.hard?`<span class="hardtag">💪 שאלת אתגר · עד ${PTS.hard[0]} 🪙</span>`:'');
   $('prompt').innerHTML=q.prompt;$('visual').innerHTML=q.visual||'';$('hints').innerHTML='';
   $('feedback').classList.add('hidden');$('gcoins').textContent=DATA.coins+G_.score;
   updHintBtn();renderProgress();renderAnswer(q);
@@ -1049,10 +1050,13 @@ document.addEventListener('keydown',e=>{
 });
 function shakeEl(el){if(!el)return;el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake')}
 function isRight(q,v){if(q.type==='draw'){const t=v===90?'right':v<88?'acute':'obtuse';return v>=1&&t===q.target&&!(q.target==='acute'&&v>82)&&!(q.target==='obtuse'&&(v<98||v>176))}return v===q.answer}
+/* coins for a correct answer: [first try, later try]; challenge questions pay more */
+const PTS={reg:[10,5],hard:[30,15]};
+const ptsOf=q=>PTS[q.hard?'hard':'reg'];
 function submit(v,btn){
   const q=G_.qs[G_.i];q.attempts++;
   if(isRight(q,v)){
-    q.done=true;const pts=q.attempts===1?10:5;G_.score+=pts;G_.correct++;if(q.attempts===1){G_.first++;G_.streak++}else G_.streak=0;
+    q.done=true;const pts=ptsOf(q)[q.attempts===1?0:1];G_.score+=pts;G_.correct++;if(q.attempts===1){G_.first++;G_.streak++}else G_.streak=0;
     G_.res[G_.i]=q.attempts===1?'ok':'half';
     if(btn)btn.classList.add('right');
     SFX.good();say(P(MSG.good),'happy');floatPlus('+'+pts+' 🪙',btn||$('answerArea'));
@@ -1116,7 +1120,7 @@ function genMix(){const S=DATA.settings,N=S.mixN,H=Math.min(S.mixHard,7,N);
 
 /* ================== end ================== */
 function endRound(){
-  const n=G_.qs.length,pct=G_.score/(n*10);const stars=pct>=.85?3:pct>=.6?2:pct>=.3?1:0;
+  const n=G_.qs.length,maxScore=G_.qs.reduce((s,q)=>s+ptsOf(q)[0],0),pct=G_.score/maxScore;const stars=pct>=.85?3:pct>=.6?2:pct>=.3?1:0;
   DATA.coins+=G_.score;
   const prev=DATA.best[G_.tid]||0;if(stars>prev)DATA.best[G_.tid]=stars;
   const t=TOPICS.find(t=>t.id===G_.tid);
