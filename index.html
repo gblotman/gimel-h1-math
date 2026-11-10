@@ -117,12 +117,13 @@ button{font-family:inherit;touch-action:manipulation;cursor:pointer;color:inheri
 .visual:empty{display:none}
 .bignum{font-size:clamp(34px,9vw,52px);font-weight:900;letter-spacing:3px;direction:ltr;unicode-bidi:isolate;color:var(--purple);
   background:var(--soft);padding:6px 22px;border-radius:20px;display:inline-flex;align-items:center;gap:12px}
-.bignum .slot{display:inline-grid;place-items:center;width:1.3em;height:1.3em;border-radius:50%;border:4px dashed #ff4fa3;color:#ff4fa3;font-size:.7em}
+.bignum .slot{display:inline-grid;place-items:center;width:1.3em;height:1.3em;border-radius:50%;border:max(2px,.11em) dashed #ff4fa3;line-height:1;color:#ff4fa3;font-size:.7em}
 .digit-tiles{display:flex;gap:10px;direction:ltr}
 .digit-tiles b{width:58px;height:64px;display:grid;place-items:center;font-size:34px;background:#fff7d6;border:3px solid var(--yellow);border-radius:16px;box-shadow:0 4px 0 var(--yellowd)}
 .digit-tiles.nums{flex-wrap:wrap;justify-content:center}
 .digit-tiles.nums b{width:auto;min-width:58px;padding:0 10px;font-size:26px}
-.bignum.long{font-size:clamp(22px,6.2vw,40px);letter-spacing:1px;gap:8px;flex-wrap:wrap;justify-content:center}
+.bignum.long{font-size:clamp(22px,6.2vw,40px);letter-spacing:1px;gap:8px;justify-content:center}
+.bignum{white-space:nowrap;max-width:none}
 .seq{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px;direction:rtl}
 .seq .c{min-width:58px;height:58px;padding:0 8px;display:grid;place-items:center;border-radius:16px;background:#e3f8fc;border:3px solid #00b8d4;font-weight:900;font-size:22px;direction:ltr}
 .seq .c.q{background:#fff0f7;border:3px dashed #ff4fa3;color:#ff4fa3}
@@ -1007,12 +1008,17 @@ function startRound(tid){
 }
 function say(txt,mood){$('bubble').innerHTML=txt;$('bubble').style.animation='none';void $('bubble').offsetWidth;$('bubble').style.animation='';if(mood)owlMood($('owlMini'),mood)}
 function renderProgress(){$('progress').innerHTML=G_.qs.map((q,i)=>`<i class="${G_.res[i]||(i===G_.i?'cur':'')}"></i>`).join('')}
+/* keep an exercise on one line: shrink its font until it fits the card */
+function fitBig(){document.querySelectorAll('#visual .bignum').forEach(el=>{el.style.fontSize='';
+  const avail=el.parentElement.clientWidth;if(!avail||el.offsetWidth<=avail)return;
+  let fs=parseFloat(getComputedStyle(el).fontSize);while(el.offsetWidth>avail&&fs>16){fs-=1;el.style.fontSize=fs+'px'}})}
+addEventListener('resize',fitBig);
 function renderQ(){
   const q=G_.qs[G_.i];q.attempts=0;q.hintsShown=0;q.done=false;
   q.max=q.type==='choice'&&q.choices.length<=2?1:2;
   const tp=TOPICS.find(t=>t.id===q.topic);
   $('qnum').innerHTML=`שאלה ${G_.i+1} מתוך ${G_.qs.length}`+(G_.tid==='mix'?` · ${tp.icon} ${tp.name}`:'')+(q.hard?`<span class="hardtag">💪 שאלת אתגר · עד ${PTS.hard[0]} 🪙</span>`:'');
-  $('prompt').innerHTML=q.prompt;$('visual').innerHTML=q.visual||'';$('hints').innerHTML='';
+  $('prompt').innerHTML=q.prompt;$('visual').innerHTML=q.visual||'';$('hints').innerHTML='';fitBig();
   $('feedback').classList.add('hidden');$('gcoins').textContent=DATA.coins+G_.score;
   updHintBtn();renderProgress();renderAnswer(q);
   $('visual').querySelectorAll('[data-corner]').forEach(b=>b.onclick=()=>{const sc=b.closest('.corner-scope');sc.classList.toggle('show-corner');b.classList.toggle('on');SFX.click()});
