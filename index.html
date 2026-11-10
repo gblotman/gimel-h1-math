@@ -188,6 +188,8 @@ button{font-family:inherit;touch-action:manipulation;cursor:pointer;color:inheri
 .pv .line{grid-column:1/4;height:4px;border-radius:2px;background:var(--purple);opacity:.6;margin:2px 0 4px}
 .pv .carry{justify-self:center;width:26px;height:26px;border-radius:50%;border:3px dashed #ff8a00;color:#ff8a00;display:grid;place-items:center;font-size:16px;font-weight:900;visibility:hidden}
 .pv .carry.show{visibility:visible}
+.pv .carry.w{width:auto;min-width:26px;padding:0 5px;border-radius:12px}
+.pv .d.x{text-decoration:line-through;text-decoration-thickness:3px;opacity:.4}
 .pv .carry.on{border-style:solid;background:#fff3d6}
 .pv .carry.glow{box-shadow:0 0 0 6px rgba(255,138,0,.3)}
 .pv .res{justify-self:center;width:52px;height:48px;border-radius:14px;border:3px dashed #d8d0fb;display:grid;place-items:center;font-size:30px;color:#cfc6f5;background:#fff}
@@ -574,7 +576,7 @@ function genAdd(sub){
       explain:`${at*10} + ${bt*10} = ${(at+bt)*10}, &nbsp; ${au} + ${bu} = ${au+bu}, &nbsp; ${(at+bt)*10} + ${au+bu} = <b>${a+b}</b>`});}
   if(sub==='sub2'){let a,b;if(Math.random()<.2){a=100;b=R(11,89);if(b%10===0)b++;}else{do{a=R(31,99);b=R(11,a-5)}while((a%10)>=(b%10))}
     const bt=Math.floor(b/10)*10,bu=b%10;
-    return numQ({key:'a-'+a+'-'+b,prompt:'פתרו את התרגיל:',visual:`<div class="bignum">${a} − ${b} = <span class="slot">?</span></div>`,answer:a-b,
+    return numQ({key:'a-'+a+'-'+b,steps:a<100?{op:'-',nums:[a,b]}:null,prompt:'פתרו את התרגיל:',visual:`<div class="bignum">${a} − ${b} = <span class="slot">?</span></div>`,answer:a-b,
       hints:[`אפשר לחסר בשלבים: קודם את העשרות של ${b}, ואחר כך את היחידות.`,`שלב 1: ${eq(a+' − '+bt)}. שלב 2: מהתוצאה מחסירים עוד ${bu}.`,
         `בדיקה: התשובה + ${b} צריכה לתת בדיוק ${a}.`],
       explain:`${a} − ${bt} = ${a-bt}, &nbsp; ${a-bt} − ${bu} = <b>${a-b}</b>`});}
@@ -1063,38 +1065,54 @@ function setMode(q,on){if(q.done||!!DATA.settings.steps===on||(stepMode(q)&&q.st
   DATA.settings.steps=on;save();SFX.click();showQ(q);say(on?'נפתור צעד אחר צעד 🧩':P(MSG.think))}
 /* the boxes the child fills, in order */
 const U=n=>n%10,T=n=>Math.floor(n/10),sum=a=>a.reduce((x,y)=>x+y,0);
-const stepBoxes=q=>{const N=q.steps.nums,s=sum(N.map(U));
-  return [{n:1,ans:s},{n:2,ans:T(s)},{n:2,ans:U(s)},{n:3,ans:sum(N.map(T))+T(s)}]};
-function renderSteps(q){const N=q.steps.nums,st=q.st,B=stepBoxes(q),ts=N.map(T).join(' + ');
+const isSub=q=>q.steps.op==='-';
+/* the boxes the child fills, in order (n = step number) */
+const stepBoxes=q=>{const N=q.steps.nums;
+  if(isSub(q)){const [a,b]=N;return [{n:1,ans:T(a)-1},{n:1,ans:U(a)+10},{n:2,ans:U(a)+10-U(b)},{n:3,ans:T(a)-1-T(b)}]}
+  const s=sum(N.map(U));return [{n:1,ans:s},{n:2,ans:T(s)},{n:2,ans:U(s)},{n:3,ans:sum(N.map(T))+T(s)}]};
+function renderSteps(q){const N=q.steps.nums,st=q.st,B=stepBoxes(q),sub=isSub(q),op=sub?'−':'+';
   const box=i=>{const v=st.shown[i]!=null?st.shown[i]:i<st.b?B[i].ans:i===st.b?(st.typed||'?'):'?';
     const c=st.shown[i]!=null?'shown':i<st.b?'ok':i===st.b?(st.bad?'bad':'act'+(st.typed?'':' q')):'q';return `<span class="box ${c}" id="sb${i}">${v}</span>`};
   const cur=Math.min(st.b,B.length-1),step=B[cur].n,done=st.b>=B.length;
-  const carry=st.b>=2?`<div class="carry show on ${st.glow?'glow':''}">${B[1].ans}</div>`:`<div class="carry ${step===2?'show':''}"></div>`;
+  /* result row: units after the units step (box 2), tens at the end */
   const uRes=st.b>=3?`<div class="res fill">${B[2].ans}</div>`:'<div class="res">?</div>';
   const tRes=done?`<div class="res fill">${B[3].ans}</div>`:st.b===3&&st.bad?`<div class="res bad">${st.typed}</div>`:'<div class="res">?</div>';
-  const rows={1:`יחידות: <span class="eq">${N.map(U).join(' + ')} = ${box(0)}</span>`,2:`${B[0].ans} = ${box(1)} עשרת + ${box(2)} יחידות`,
-    3:`עשרות: ${st.glow?`<span class="eq">${ts} + ? = ${box(3)}</span>`:done?`<span class="eq">${B[1].ans} + ${ts} = ${box(3)}</span>`:`כמה עשרות ביחד? ${box(3)}`}`};
-  $('prompt').innerHTML=`פתרו את התרגיל: <span class="eq" style="color:var(--purple)">${N.join(' + ')}</span>`;
+  let top,rows;
+  if(sub){const [a,b]=N,rg=st.b>=2;
+    top=`<div></div><div class="carry w ${rg?'show on':step===1?'show':''} ${st.glow?'glow':''}">${rg?B[0].ans:''}</div><div class="carry w ${rg?'show on':step===1?'show':''}">${rg?B[1].ans:''}</div>
+      <div></div><div class="d ${rg?'x':''}">${T(a)}</div><div class="d ${rg?'x':''}">${U(a)}</div>
+      <div class="op">−</div><div class="d">${T(b)}</div><div class="d">${U(b)}</div>`;
+    rows={1:`פורטים עשרת: <span class="eq">${a}</span> = ${box(0)} עשרות + ${box(1)} יחידות`,
+      2:`יחידות: <span class="eq">${B[1].ans} − ${U(b)} = ${box(2)}</span>`,
+      3:`עשרות: ${st.glow?`<span class="eq">? − ${T(b)} = ${box(3)}</span>`:done?`<span class="eq">${B[0].ans} − ${T(b)} = ${box(3)}</span>`:`כמה עשרות נשארו? ${box(3)}`}`};
+  }else{const ts=N.map(T).join(' + ');
+    top=`<div></div>${st.b>=2?`<div class="carry show on ${st.glow?'glow':''}">${B[1].ans}</div>`:`<div class="carry ${step===2?'show':''}"></div>`}<div></div>
+      ${N.map((n,i)=>`<div class="op">${i?'+':''}</div><div class="d">${T(n)}</div><div class="d">${U(n)}</div>`).join('')}`;
+    rows={1:`יחידות: <span class="eq">${N.map(U).join(' + ')} = ${box(0)}</span>`,2:`${B[0].ans} = ${box(1)} עשרת + ${box(2)} יחידות`,
+      3:`עשרות: ${st.glow?`<span class="eq">${ts} + ? = ${box(3)}</span>`:done?`<span class="eq">${B[1].ans} + ${ts} = ${box(3)}</span>`:`כמה עשרות ביחד? ${box(3)}`}`};}
+  $('prompt').innerHTML=`פתרו את התרגיל: <span class="eq" style="color:var(--purple)">${N.join(` ${op} `)}</span>`;
   $('visual').innerHTML=`<div><div class="pv ${N.length>2?'n3':''}"><div></div><div class="h">עשרות</div><div class="h">יחידות</div>
-    <div></div>${carry}<div></div>${N.map((n,i)=>`<div class="op">${i?'+':''}</div><div class="d">${T(n)}</div><div class="d">${U(n)}</div>`).join('')}<div class="line"></div>
-    <div></div>${tRes}${uRes}</div>
+    ${top}<div class="line"></div><div></div>${tRes}${uRes}</div>
     <div class="srow ${done?'ok':st.bad?'err':''}"><span class="n">${done?'✓':step}</span><span>${rows[step]}</span></div></div>`;
   if(!$('answerArea').querySelector('.keypad')||$('answerArea').dataset.steps!=='1'){renderAnswer(q);$('answerArea').dataset.steps='1';const ab=$('ansbox');if(ab)ab.style.display='none'}
 }
-function stepKey(q,k){const st=q.st,B=stepBoxes(q);if(st.b>=B.length)return;
+function stepKey(q,k){const st=q.st,B=stepBoxes(q),sub=isSub(q);if(st.b>=B.length)return;
   if(k==='del'){st.typed=st.typed.slice(0,-1);st.bad=false;renderSteps(q);return}
   if(k!=='ok'){if(st.typed.length<2)st.typed=(st.typed==='0'?'':st.typed)+k;st.bad=false;renderSteps(q);return}
   if(st.typed===''){shakeEl($('sb'+st.b));return}
   const v=+st.typed,box=B[st.b];
   if(v===box.ans){st.b++;st.typed='';st.wrong=0;st.bad=false;st.glow=false;SFX.good();
-    if(st.b===2)say('יש המרה! העשרת עוברת למעלה ⬆️','think');else if(st.b===1)say(box.ans>=10?'יותר מ-10 יחידות – יש המרה! 🔄':P(MSG.think),'think');
+    if(sub)say(st.b===2?'פרטנו עשרת ל-10 יחידות 🔄':P(MSG.think),'think');
+    else if(st.b===2)say('יש המרה! העשרת עוברת למעלה ⬆️','think');else if(st.b===1)say(box.ans>=10?'יותר מ-10 יחידות – יש המרה! 🔄':P(MSG.think),'think');
     renderSteps(q);updTog(q);if(st.b>=B.length)finishSteps(q);return}
   q.mist=true;st.wrong++;SFX.bad();G_.streak=0;
-  const carryForgot=box.n===3&&v===sum(q.steps.nums.map(T));
+  const N=q.steps.nums,carryForgot=box.n===3&&(sub?v===T(N[0])-T(N[1]):v===sum(N.map(T)));
   if(st.wrong>=2){st.shown[st.b]=box.ans;st.b++;st.typed='';st.wrong=0;st.bad=false;st.glow=false;
     say('לא נורא – הנה המספר הנכון, ממשיכים 💜','sad');renderSteps(q);updTog(q);if(st.b>=B.length)finishSteps(q);return}
   st.bad=true;st.glow=carryForgot;
-  say(carryForgot?'שכחנו את העשרת שעברה ☝️':box.n===2?'כל 10 יחידות הן עשרת אחת 💡':P(MSG.retry),'sad');
+  say(carryForgot?(sub?'שכחנו שפרטנו עשרת ☝️':'שכחנו את העשרת שעברה ☝️')
+    :sub&&box.n===1?'פורטים עשרת אחת: עשרת אחת פחות, ו-10 יחידות יותר 💡'
+    :!sub&&box.n===2?'כל 10 יחידות הן עשרת אחת 💡':P(MSG.retry),'sad');
   renderSteps(q);shakeEl($('sb'+st.b));updTog(q);
   setTimeout(()=>{if(q.st&&q.st.bad&&q.st.typed===String(v)){q.st.typed='';renderSteps(q)}},900);
 }
