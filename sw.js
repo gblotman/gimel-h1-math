@@ -1,14 +1,15 @@
 // Bump VERSION when deploying changes so clients refresh the cache.
-const VERSION = 'v11';
+const VERSION = 'v12';
 const CACHE = 'owl-math-' + VERSION;
 const CORE = ['./', 'index.html', 'manifest.webmanifest', 'favicon.svg',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];
 
 const MUSIC = [1, 2, 3, 4, 5, 6, 7].map(n => 'music/song' + n + '.mp3');
+const VIDEO = ['video/poster.jpg', 'video/splash.mp4'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c =>
-    c.addAll(CORE).then(() => c.addAll(MUSIC).catch(() => {})) // music is best-effort
+    c.addAll(CORE).then(() => c.addAll(VIDEO.concat(MUSIC)).catch(() => {})) // video and music are best-effort
   ).then(() => self.skipWaiting()));
 });
 self.addEventListener('activate', e => {
