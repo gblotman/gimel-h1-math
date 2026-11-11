@@ -34,14 +34,6 @@ button{font-family:inherit;touch-action:manipulation;cursor:pointer;color:inheri
 @keyframes floaty{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-22px) rotate(12deg)}}
 #confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:50}
 .app{position:relative;z-index:1;max-width:780px;margin:0 auto;padding:14px 14px 28px}
-#splash{position:fixed;inset:0;z-index:9999;background:#120a24;display:flex;align-items:center;justify-content:center;transition:opacity .5s ease}
-#splash[hidden]{display:none}
-#splash.out{opacity:0;pointer-events:none}
-#splash video{width:100%;height:100%;object-fit:cover;background:#120a24}
-@media (min-aspect-ratio:1/1){#splash video{object-fit:contain}}
-.splash-skip{position:absolute;top:max(14px,env(safe-area-inset-top));left:14px;border:none;border-radius:999px;background:rgba(0,0,0,.45);color:#fff;font-weight:800;font-size:15px;padding:8px 14px;font-family:inherit;backdrop-filter:blur(4px)}
-.splash-start{position:absolute;left:50%;bottom:9%;white-space:nowrap;transform:translateX(-50%);border:none;border-radius:999px;background:linear-gradient(135deg,#ff8a00,#ffb300);color:#fff;font-weight:900;font-size:22px;padding:14px 28px;box-shadow:0 5px 0 #c46a00;font-family:inherit;animation:pulse 1.3s ease-in-out infinite}
-.splash-start[hidden]{display:none}
 .screen{display:none;animation:pop .35s ease}
 .screen.active{display:block}
 @keyframes pop{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
@@ -304,11 +296,6 @@ h2.ttl{font-size:26px;font-weight:900;margin:4px 0}
 </style>
 </head>
 <body>
-<div id="splash" hidden>
-  <video id="splashVid" src="video/splash.mp4" poster="video/poster.jpg" playsinline preload="auto"></video>
-  <button id="splashStart" class="splash-start" hidden>▶ הקישו להתחלה</button>
-  <button id="splashSkip" class="splash-skip">דלג ⏭</button>
-</div>
 <div class="bg-deco" aria-hidden="true">
   <span style="top:6%;left:6%">➕</span><span style="top:20%;right:4%;animation-delay:-2s">⭐</span>
   <span style="top:46%;left:3%;animation-delay:-4s">📐</span><span style="top:70%;right:7%;animation-delay:-1s">✖️</span>
@@ -1259,18 +1246,6 @@ $('prevBtn').onclick=()=>{SFX.click();skipSong(-1)};
 $('nextBtn').onclick=()=>{SFX.click();skipSong(1)};
 syncAudioBtns();
 renderHome();
-/* splash video: plays on launch (once per session), skippable, falls back to a tap-to-start if the browser blocks sound */
-(()=>{const sp=$('splash'),v=$('splashVid'),st=$('splashStart'),sk=$('splashSkip');let done=false;
-  try{if(sessionStorage.getItem('splashSeen'))return}catch(e){}
-  sp.hidden=false;
-  const end=()=>{if(done)return;done=true;try{sessionStorage.setItem('splashSeen','1')}catch(e){}
-    sp.classList.add('out');setTimeout(()=>{sp.hidden=true;v.pause();v.removeAttribute('src');v.load()},550)};
-  v.onended=end;v.onerror=end;sk.onclick=end;
-  const play=()=>{const pr=v.play();if(pr&&pr.catch)pr.catch(()=>{st.hidden=false})};
-  st.onclick=()=>{st.hidden=true;v.currentTime=0;play()};
-  setTimeout(()=>{if(!done&&v.paused&&st.hidden)st.hidden=false},2500);
-  play();
-})();
 if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 </script>
 </body>
