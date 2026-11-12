@@ -160,6 +160,13 @@ button{font-family:inherit;touch-action:manipulation;cursor:pointer;color:inheri
 .shape .cdot.m{fill:#22c55e;stroke:#15803d}
 .clock svg{width:min(200px,56vw);height:auto}
 .vnote{font-size:13px;color:var(--ink2);text-align:center}
+.wordnum{font-size:clamp(22px,6vw,32px);font-weight:900;color:var(--purple);text-align:center;background:#f3efff;border:3px dashed #c9bbff;border-radius:18px;padding:12px 18px;line-height:1.4}
+.wlab{font-size:17px;font-weight:700;line-height:1.3}
+.wallet{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;max-width:460px;direction:ltr;background:#fff7d6;border:3px solid var(--yellow);border-radius:20px;padding:12px}
+.wallet .note{display:grid;place-items:center;width:74px;height:40px;border-radius:8px;font-weight:900;font-size:18px;color:#fff;box-shadow:0 3px 0 rgba(0,0,0,.18);border:2px solid rgba(255,255,255,.6)}
+.wallet .m100{background:#e0a800}.wallet .m50{background:#22a06b}.wallet .m20{background:#e25b5b}
+.wallet .coin{display:grid;place-items:center;border-radius:50%;font-weight:900;color:#5a4400;box-shadow:0 3px 0 rgba(0,0,0,.18);border:3px solid #c9a227;background:radial-gradient(circle at 35% 30%,#fff6c2,#f2cc4a)}
+.wallet .m10{width:46px;height:46px;font-size:17px}.wallet .m5{width:42px;height:42px;font-size:16px}.wallet .m2{width:36px;height:36px;font-size:15px}.wallet .m1{width:32px;height:32px;font-size:14px;border-color:#a8a8a8;background:radial-gradient(circle at 35% 30%,#fff,#cfcfcf);color:#444}
 
 .hints{display:flex;flex-direction:column;gap:8px;margin-top:10px}
 .hint{background:#fff9e0;border:2px solid var(--yellow);border-radius:16px;padding:9px 12px;font-size:16px;line-height:1.5;animation:pop .35s;display:flex;gap:8px}
@@ -480,6 +487,86 @@ function genPV(sub){
       visual:`<div class="digit-tiles">${shuffle(ds).map(x=>`<b>${x}</b>`).join('')}</div>`,answer:ans,hints:h,
       explain:`המספר ה${big?'גדול':'קטן'} ביותר הוא <b>${ans}</b>.`});
   }
+  if(sub==='words'){
+    const h=R(1,9),m=R(0,5),t=m===0?0:m===1?1:R(2,9),u=Math.random()<.2?0:R(1,9),n=h*100+t*10+u;
+    return numQ({key:'pw'+n,prompt:'כתבו את המספר בספרות:',visual:`<div class="wordnum">${numWords(n)}</div>`,answer:n,
+      hints:['נמצא קודם כמה מאות יש – זו הספרה הראשונה (משמאל).','אחר כך נבדוק כמה עשרות וכמה יחידות. "שתים עשרה", למשל, זה עשרת אחת ו-2 יחידות.',
+        'אם חסר מקום – למשל אין עשרות – כותבים בו 0!'],
+      explain:`${numWords(n)} = <b>${n}</b>`});
+  }
+  if(sub==='toWords'){
+    let n;do{n=R(101,999)}while(n%10===0&&Math.random()<.6);const [h,t,u]=digits(n);
+    const alt=new Set([n]),cands=shuffle([h*100+u*10+t,(h%9+1)*100+t*10+u,h*100+u,h*100+t*10,h*100+(t+1)%10*10+u,(h===1?2:h-1)*100+t*10+u,u?u*100+t*10+h:n]);
+    for(const c of cands){if(alt.size>=4)break;if(c>=100&&c<=999)alt.add(c)}
+    while(alt.size<4)alt.add(R(101,999));
+    return choiceQ({key:'ptw'+n,prompt:'איך כותבים את המספר הזה במילים?',visual:`<div class="bignum">${n}</div>`,
+      choices:shuffle([...alt]).map(x=>({label:`<span class="wlab">${numWords(x)}</span>`,value:x})),answer:n,
+      hints:[`נתחיל מהמאות: ${h} מאות – איך אומרים את זה?`,`עכשיו העשרות והיחידות: ${t*10+u}.`,'נבדוק כל תשובה מילה אחרי מילה – יש תשובות שדומות מאוד!'],
+      explain:`${n} = <b>${numWords(n)}</b>`});
+  }
+  if(sub==='valueWhich'){
+    const d=R(1,9),i=R(0,2),pl=PLACES[i];
+    const mk=j=>{let x;do{const ds=[R(1,9),R(0,9),R(0,9)];ds[j]=d;x=ds[0]*100+ds[1]*10+ds[2]}while(digits(x).filter(y=>y===d).length!==1);return x};
+    const right=mk(i),set=new Set([right]),others=[0,1,2].filter(j=>j!==i);
+    while(set.size<4)set.add(mk(P(others)));
+    return choiceQ({key:'pvw'+[...set].sort().join(',')+i,prompt:`באיזה מספר <span class="hl">הערך</span> של הספרה ${d} הוא <span class="hl">${d*pl.v}</span>?`,
+      choices:shuffle([...set]).map(x=>({label:String(x),value:x})),answer:right,
+      hints:[`${d*pl.v} זה ${d} ${pl.n}. אז הספרה ${d} צריכה לעמוד במקום ה${pl.n}.`,'נזכור: יחידות – הספרה הכי ימנית, עשרות – באמצע, מאות – הכי שמאלית.',`נבדוק בכל מספר: איפה עומדת הספרה ${d}?`],
+      explain:`במספר ${right} הספרה ${d} נמצאת במקום ה${pl.n}, לכן הערך שלה הוא <b>${d*pl.v}</b>.`});
+  }
+  if(sub==='between'){
+    const a=R(110,940),gap=P([10,10,20,8]),b=a+gap,right=R(a+1,b-1);
+    const set=new Set([right]),pool=shuffle([a,b,a-1,b+1,a-10,b+10,a-100+R(1,gap-1),a+100+R(1,gap-1),b+R(2,9)]);
+    for(const x of pool){if(set.size>=4)break;if(x>=100&&x<=999&&(x<=a||x>=b))set.add(x)}
+    return choiceQ({key:'pbt'+a+'_'+[...set].sort().join(','),prompt:'איזה מספר מתאים במקום סימן השאלה?',
+      visual:`<div class="bignum long">${a} &lt; <span class="slot">?</span> &lt; ${b}</div>`,
+      choices:shuffle([...set]).map(x=>({label:String(x),value:x})),answer:right,
+      hints:[`המספר צריך להיות גדול מ-${a} וגם קטן מ-${b}.`,`שימו לב: ${a} ו-${b} עצמם לא מתאימים – הסימן הוא "קטן מ", לא "שווה".`,'נשווה כל מספר לפי הסדר: מאות, אחר כך עשרות, ובסוף יחידות.'],
+      explain:`${eq(a+' &lt; '+right+' &lt; '+b)} – לכן התשובה היא <b>${right}</b>.`});
+  }
+  if(sub==='hundreds'){
+    let n;do{n=R(101,989)}while(n%100===0);const lo=Math.floor(n/100)*100,hi=lo+100,askLo=Math.random()<.5;
+    return numQ({key:'phd'+n+askLo,prompt:'כתבו את <span class="hl">המאה השלמה</span> החסרה:',
+      visual:`<div class="bignum long">${askLo?'<span class="slot">?</span>':lo} &lt; ${n} &lt; ${askLo?hi:'<span class="slot">?</span>'}</div>`,answer:askLo?lo:hi,
+      hints:['מאה שלמה היא מספר שנגמר ב-00, כמו 300 או 700.',`כמה מאות שלמות יש במספר ${n}? (ספרת המאות שלו היא ${digits(n)[0]})`,askLo?'מחפשים את המאה השלמה שבאה ממש לפני המספר.':'מחפשים את המאה השלמה שבאה ממש אחרי המספר.'],
+      explain:`${eq(lo+' &lt; '+n+' &lt; '+hi)} – התשובה היא <b>${askLo?lo:hi}</b>.`});
+  }
+  if(sub==='money'){
+    const kinds=[[100,'note'],[50,'note'],[20,'note'],[10,'coin'],[5,'coin'],[2,'coin'],[1,'coin']];
+    let cnt,sum;do{cnt=kinds.map(([v])=>v>=50?R(0,3):Math.random()<.55?R(1,3):0);sum=cnt.reduce((s,c,i)=>s+c*kinds[i][0],0)}while(sum<30||sum>999||cnt.filter(Boolean).length<3);
+    const items=kinds.flatMap(([v,k],i)=>Array(cnt[i]).fill(`<span class="${k} m${v}">${v}</span>`)).join('');
+    const parts=kinds.map(([v],i)=>cnt[i]?`${cnt[i]}×${v}`:'').filter(Boolean);
+    return numQ({key:'pmo'+cnt.join(','),prompt:'כמה שקלים יש בארנק?',visual:`<div class="vcol"><div class="wallet">${items}</div><div class="vnote">השטרות והמטבעות בשקלים ₪</div></div>`,answer:sum,
+      hints:['נתחיל מהשטרות הגדולים ונתקדם אל המטבעות הקטנים.','נקבץ כסף מאותו סוג: כמה שטרות של 100? כמה של 50? וכן הלאה.','אפשר לחבר קודם מאות, אחר כך עשרות ובסוף יחידות.'],
+      explain:`${eq(parts.join(' + '))} = <b>${sum}</b> ₪`});
+  }
+  if(sub==='props'){
+    const P4=[
+      ['שכל הספרות שלו זהות',x=>{const[a,b,c]=digits(x);return x>=100&&a===b&&b===c},()=>R(1,9)*111],
+      ['שספרת העשרות שלו היא 6',x=>digits(x)[1]===6&&x>=100,()=>R(1,9)*100+60+R(0,9)],
+      ['שספרת המאות שלו גדולה מספרת היחידות ב-2',x=>x>=100&&digits(x)[0]-digits(x)[2]===2,()=>{const h=R(2,9);return h*100+R(0,9)*10+h-2}],
+      ['שהוא תלת-ספרתי וזוגי',x=>x>=100&&x%2===0,()=>R(50,499)*2],
+      ['שספרת היחידות שלו היא 0 וספרת המאות 5',x=>x>=500&&x<600&&x%10===0,()=>500+R(0,9)*10],
+      ['שסכום הספרות שלו הוא 10',x=>x>=100&&digits(x).reduce((a,b)=>a+b,0)===10,()=>{let x;do{x=R(101,999)}while(digits(x).reduce((a,b)=>a+b,0)!==10);return x}]];
+    const [txt,ok,mk]=P(P4),right=mk(),set=new Set([right]);let g=0;
+    while(set.size<4&&g++<500){const near=P([right+R(1,9),right-R(1,9),right+10*R(1,5),right-10*R(1,5),+String(right).split('').reverse().join(''),R(30,999),R(100,999)]);if(near>=10&&near<=999&&!ok(near))set.add(near)}
+    while(set.size<4){const x=R(10,999);if(!ok(x))set.add(x)}
+    return choiceQ({key:'ppr'+txt+[...set].sort().join(','),prompt:`איזה מספר הוא מספר <span class="hl">${txt}</span>?`,
+      choices:shuffle([...set]).map(x=>({label:String(x),value:x})),answer:right,
+      hints:['נקרא שוב את התנאי בעיון – מה בדיוק צריך לבדוק?','נבדוק כל מספר בנפרד: נפרק אותו למאות, עשרות ויחידות.','אם מספר לא מתאים לתנאי – נפסול אותו ונמשיך למספר הבא.'],
+      explain:`המספר <b>${right}</b> הוא מספר ${txt}.`});
+  }
+}
+/* Hebrew words for 1..999 (feminine counting form, as in the workbooks) */
+function numWords(n){
+  const H=['','מאה','מאתיים','שלוש מאות','ארבע מאות','חמש מאות','שש מאות','שבע מאות','שמונה מאות','תשע מאות'];
+  const T=['','עשר','עשרים','שלושים','ארבעים','חמישים','שישים','שבעים','שמונים','תשעים'];
+  const U=['','אחת','שתיים','שלוש','ארבע','חמש','שש','שבע','שמונה','תשע'];
+  const TEEN=['עשר','אחת עשרה','שתים עשרה','שלוש עשרה','ארבע עשרה','חמש עשרה','שש עשרה','שבע עשרה','שמונה עשרה','תשע עשרה'];
+  const [h,t,u]=digits(n);let rest='';
+  if(t===1)rest=TEEN[u];else if(t&&u)rest=T[t]+' ו'+U[u];else rest=T[t]||U[u];
+  if(!h)return rest;if(!rest)return H[h];
+  return H[h]+' '+(t>=2&&u?rest:'ו'+rest);
 }
 
 /* ---------- 2. sequences ---------- */
@@ -583,7 +670,56 @@ function genAdd(sub){
     return numQ({key:'ams'+a+'_'+c,prompt:'איזה מספר חסר?',visual:`<div class="bignum">${a} − <span class="slot">?</span> = ${c}</div>`,answer:b,
       hints:[`השאלה היא: כמה צריך להוריד מ-${a} כדי להגיע ל-${c}?`,`אפשר לחשוב הפוך: מ-${c} – כמה צריך להוסיף כדי להגיע ל-${a}?`,`כלומר, אפשר לפתור: ${eq(a+' − '+c)}.`],
       explain:`${eq(a+' − '+c+' = '+b)} ובדיקה: ${eq(a+' − '+b+' = '+c)}`});}
+  if(sub==='jump'){/* 655 + 10, 730 − 300, 762 − 2 – only one digit changes */
+    const i=R(0,2),v=[100,10,1][i],plus=Math.random()<.5;let n,k;
+    do{n=R(101,989);const d=digits(n)[i],mx=plus?9-d:i===0?d-1:d;k=mx>=1?R(1,mx):0}while(!k);
+    const b=k*v,ans=plus?n+b:n-b,op=plus?'+':'−',pl=PLACES[i];
+    return numQ({key:'aj'+n+op+b,prompt:'פתרו את התרגיל:',visual:`<div class="bignum">${n} ${op} ${b} = <span class="slot">?</span></div>`,answer:ans,
+      hints:[`${b} זה ${k===1?pl.s:k+' '+pl.n}.`,`רק ספרת ה${pl.n} משתנה! שאר הספרות נשארות כמו שהן.`,`ספרת ה${pl.n} של ${n} היא ${digits(n)[i]}. ${plus?'נוסיף':'נחסיר'} ${k}.`],
+      explain:`${eq(n+' '+op+' '+b+' = '+ans)} – השתנתה רק ספרת ה${pl.n}.`});}
+  if(sub==='missing3'){const[a,b]=noRegAdd(),c=a+b;
+    return numQ({key:'am3'+a+'_'+c,prompt:'איזה מספר חסר?',visual:`<div class="bignum">${a} + <span class="slot">?</span> = ${c}</div>`,answer:b,
+      hints:[`השאלה היא: כמה צריך להוסיף ל-${a} כדי להגיע ל-${c}?`,'נבדוק כל מקום בנפרד: כמה מאות חסרות? כמה עשרות? כמה יחידות?',`אפשר גם לפתור בחיסור: ${eq(c+' − '+a)}.`],
+      explain:`${eq(c+' − '+a+' = '+b)} ובדיקה: ${eq(a+' + '+b+' = '+c)}`});}
+  if(sub==='paren'){/* 243 + (420 − 220), 399 − (120 + 60) */
+    let a,x,y,io,oo,inner,ans;
+    for(let g=0;g<400;g++){io=P(['+','−']);oo=P(['+','−']);
+      x=R(1,8)*100+R(0,9)*10;y=R(0,4)*100+R(1,9)*10;if(y>=x&&io==='−')continue;
+      if(!noCarry(x,y,io))continue;inner=io==='+'?x+y:x-y;a=R(101,989);
+      if(oo==='−'&&inner>=a)continue;if(!noCarry(a,inner,oo))continue;ans=oo==='+'?a+inner:a-inner;if(ans<=999&&ans>0)break;ans=0;}
+    if(!ans){a=243;oo='+';x=420;io='−';y=220;inner=200;ans=443}
+    const txt=`${a} ${oo} (${x} ${io} ${y})`;
+    return numQ({key:'ap'+txt,prompt:'פתרו את התרגיל:',visual:`<div class="bignum long">${txt} = <span class="slot">?</span></div>`,answer:ans,
+      hints:['כשיש סוגריים – פותרים <b>קודם את מה שבתוך הסוגריים</b>!',`שלב 1: ${eq(x+' '+io+' '+y)} – כמה זה?`,`שלב 2: ${eq(a+' '+oo)} התוצאה של הסוגריים.`],
+      explain:`${eq(x+' '+io+' '+y+' = '+inner)}, &nbsp; ${eq(a+' '+oo+' '+inner+' = '+ans)}`});}
+  if(sub==='chain3d'){/* 622 + 313 − 105 */
+    let a,b,c,mid,ans;
+    for(let g=0;g<400;g++){[a,b]=noRegAdd();mid=a+b;c=R(101,mid-11);if(noCarry(mid,c,'−')&&c%10){ans=mid-c;break}}
+    if(ans===undefined){a=622;b=313;c=105;mid=935;ans=830}
+    const txt=`${a} + ${b} − ${c}`;
+    return numQ({key:'a3d'+txt,prompt:'פתרו את התרגיל:',visual:`<div class="bignum long">${txt} = <span class="slot">?</span></div>`,answer:ans,
+      hints:['פותרים לפי הסדר, משמאל לימין ➡️','שלב 1: נחבר את שני המספרים הראשונים.',`שלב 2: מהתוצאה נחסיר ${c}.`],
+      explain:`${eq(a+' + '+b+' = '+mid)}, &nbsp; ${eq(mid+' − '+c+' = '+ans)}`});}
+  if(sub==='cmpNoCalc'){/* 716 + 222 ? 717 + 212 – answer without computing */
+    let L,Rr,lv,rv,why;const v=R(0,4);
+    for(let g=0;g<400;g++){
+      const a=R(110,700),b=R(110,280),s=P([1,2,3,10,20,100]),s2=P([1,2,3,10,20,100].filter(x=>x!==s)),sg=P([1,-1]);
+      if(v===0){L=[a,'+',b];Rr=[b,'+',a];why='בחיבור מותר להחליף את הסדר – התוצאה לא משתנה.'}
+      else if(v===1){L=[a,'+',b];Rr=[a+sg*s,'+',b];why=`בתרגיל הימני המספר הראשון ${sg>0?'גדל':'קטן'} ב-${s}, והשני לא השתנה.`}
+      else if(v===2){L=[a,'+',b];Rr=[a+sg*s,'+',b-sg*s2];why=`בתרגיל הימני מספר אחד ${sg>0?'גדל':'קטן'} ב-${s} והשני ${sg>0?'קטן':'גדל'} ב-${s2} – השינוי הגדול יותר קובע.`}
+      else if(v===3){L=[a+b,'−',b];Rr=[a+b,'−',b+sg*s];why=`מחסירים מאותו מספר. מי שמחסיר יותר – נשאר לו פחות.`}
+      else{L=[a+b,'−',b];Rr=[a+b+sg*s,'−',b];why=`מחסירים אותו מספר, אבל בתרגיל הימני המספר הראשון ${sg>0?'גדל':'קטן'} ב-${s}.`}
+      const val=e=>e[1]==='+'?e[0]+e[2]:e[0]-e[2];lv=val(L);rv=val(Rr);
+      if([...L,...Rr].every(x=>typeof x==='string'||x>0&&x<=999)&&lv<=999&&rv<=999&&lv>0&&rv>0)break;}
+    const lt=L.join(' '),rt=Rr.join(' '),ans=lv<rv?'<':lv>rv?'>':'=',sym=ans==='<'?'&lt;':ans==='>'?'&gt;':'=';
+    return choiceQ({key:'acn'+lt+'|'+rt,prompt:'<span class="hl">בלי לחשב</span>: איזה סימן מתאים במקום העיגול?',
+      visual:`<div class="bignum long">${lt} <span class="slot">?</span> ${rt}</div>`,
+      choices:['<','>','='].map(s=>({label:eq(s==='<'?'&lt;':s==='>'?'&gt;':'='),value:s,big:true})),answer:ans,
+      hints:['נשווה את המספרים בשני הצדדים: מה דומה? מה השתנה?','בחיבור – אם מספר גדל, גם התוצאה גדלה. בחיסור – אם מחסירים יותר, התוצאה קטנה.','הצד הפתוח של הסימן (הפה של התנין 🐊) פונה אל הצד הגדול.'],
+      explain:`${why} לכן ${eq(lt+' '+sym+' '+rt)} (${lv} ${sym} ${rv}).`});}
 }
+/* true if a op b needs no carrying / borrowing in any column */
+function noCarry(a,b,op){const A=digits(a),B=digits(b);return op==='+'?A.every((d,i)=>d+B[i]<=9):A.every((d,i)=>d>=B[i])}
 
 /* ---------- 4. multiply & divide ---------- */
 function multHints(a,b){
@@ -656,6 +792,36 @@ function genMul(sub){
         'לפעמים אפשר לענות בלי לחשב: כפל ב-1 לא משנה את המספר, ובכפל מותר להחליף סדר! 😉',
         'הצד הפתוח של הסימן (הפה של התנין 🐊) פונה אל הצד הגדול.'],
       explain:`${eq(lt+' = '+lv)}, &nbsp; ${eq(rt+' = '+rv)}, לכן ${eq(lt+' '+sym+' '+rt)}`});}
+  if(sub==='family'){if(a===1)return genMul('family');const [x,y]=Math.random()<.5?[a,b]:[b,a],d=Math.random()<.5?x:y;
+    return numQ({key:'mf'+c+'/'+d,prompt:'היעזרו בתרגיל הכפל ופתרו את תרגיל החילוק:',
+      visual:`<div class="vcol"><div class="bignum" style="font-size:clamp(24px,6vw,34px);opacity:.75">${x} × ${y} = ${c}</div><div class="bignum">${c} : ${d} = <span class="slot">?</span></div></div>`,answer:c/d,
+      hints:['כפל וחילוק הם "משפחה" – אותם שלושה מספרים מופיעים בשניהם!',`בתרגיל הכפל יש את המספרים ${x}, ${y} ו-${c}.`,`${c} מחולק ל-${d} – מי המספר השלישי מהמשפחה?`],
+      explain:`${eq(x+' × '+y+' = '+c)}, לכן ${eq(c+' : '+d+' = '+c/d)}`});}
+  if(sub==='missingDiv'){if(a===1)return genMul('missingDiv');const v=Math.random()<.5;
+    return numQ({key:'mdv'+c+'_'+a+v,prompt:'איזה מספר חסר?',visual:`<div class="bignum">${v?`${c} : <span class="slot">?</span> = ${b}`:`<span class="slot">?</span> : ${a} = ${b}`}</div>`,answer:v?a:c,
+      hints:v?[`השאלה היא: ל-${c} מחלקים לכמה קבוצות, כדי שבכל אחת יהיו ${b}?`,`נהפוך לכפל: ${eq(b+' × ? = '+c)}.`,`נספור בקפיצות של ${b} עד ${c}.`]
+        :['השאלה היא: איזה מספר, כשמחלקים אותו, נותן את התוצאה?',`נהפוך לכפל: ${eq(b+' × '+a+' = ?')}.`,'בחילוק – המספר הראשון הוא תמיד הגדול ביותר.'],
+      explain:v?`${eq(c+' : '+a+' = '+b)} כי ${eq(a+' × '+b+' = '+c)}`:`${eq(b+' × '+a+' = '+c)}, לכן ${eq(c+' : '+a+' = '+b)}`});}
+  if(sub==='multipleOf'||sub==='notMultiple'){const not=sub==='notMultiple',k=tab(3);
+    const isM=x=>x%k===0,pick=m=>{let x;do{x=R(Math.max(2,k),k*10+5)}while(isM(x)!==m||x===k);return x};
+    const right=pick(!not),set=new Set([right]);while(set.size<4)set.add(pick(not));
+    return choiceQ({key:'mo'+k+not+[...set].sort().join(','),prompt:`איזה מספר <span class="hl">${not?'אינו ':''}כפולה של ${k}</span>?`,
+      choices:shuffle([...set]).map(x=>({label:String(x),value:x})),answer:right,
+      hints:[`כפולות של ${k} הן המספרים שמקבלים בספירה בקפיצות של ${k}: ${k}, ${2*k}, ${3*k}...`,`אפשר לבדוק: האם יש מספר שכפול ${k} שווה למספר הזה?`,`נעבור על לוח הכפל של ${k} עד ${10*k}.`],
+      explain:`${not?`${right} לא נמצא בלוח הכפל של ${k}`:eq(k+' × '+right/k+' = '+right)} – התשובה היא <b>${right}</b>.`});}
+  if(sub==='ineqMul'){const k=Math.max(2,a),big=Math.random()<.5;let m,lim;
+    do{m=R(2,9);lim=k*m}while(lim>100);const ans=big?m-1:m+1;
+    return numQ({key:'mi'+k+'_'+lim+big,prompt:`מהו המספר <span class="hl">${big?'הגדול':'הקטן'} ביותר</span> שאפשר לכתוב במקום סימן השאלה?`,
+      visual:`<div class="bignum">${k} × <span class="slot">?</span> ${big?'&lt;':'&gt;'} ${lim}</div>`,answer:ans,
+      hints:[`נפתור קודם את המשוואה: ${eq(k+' × ? = '+lim)}.`,`${eq(k+' × '+m+' = '+lim)} – אבל צריך תוצאה ${big?'קטנה':'גדולה'} מ-${lim}, לא שווה!`,`ננסה את המספר ${big?'הקטן':'הגדול'} ב-1.`],
+      explain:`${eq(k+' × '+m+' = '+lim)}, לכן ${eq(k+' × '+ans+' = '+k*ans)} ${big?'&lt;':'&gt;'} ${lim}. התשובה: <b>${ans}</b>.`});}
+  if(sub==='commut'){const good=mulChain(),set=new Map([[exprTxt(good),1]]);let g=0;
+    while(set.size<4&&g++<200){const e=mdChain(2);set.set(exprTxt(e),0)}
+    const right=exprTxt(good);
+    return choiceQ({key:'mcm'+[...set.keys()].sort().join('|'),prompt:'באיזה תרגיל <span class="hl">מותר לשנות את סדר הפתרון</span>?',
+      choices:shuffle([...set.keys()]).map(t=>({label:eq(t),value:t})),answer:right,
+      hints:['מותר לשנות את הסדר רק כשיש בתרגיל פעולה אחת שמתחלפת: רק כפל (או רק חיבור).','כשיש בתרגיל חילוק – פותרים לפי הסדר, משמאל לימין, ואסור לשנות!','נחפש את התרגיל שיש בו רק סימני ×.'],
+      explain:`בתרגיל ${eq(right)} יש רק כפל, לכן מותר לשנות בו את הסדר. ${eq(right+' = '+evalSteps(good).val)}`});}
 }
 /* chains of × and : – solved in order, left to right */
 const exprTxt=e=>e.nums.map((n,i)=>i?`${e.ops[i-1]} ${n}`:n).join(' ');
@@ -719,6 +885,38 @@ function genDiv(sub){
       visual:`<div class="digit-tiles nums">${list.map(n=>`<b>${n}</b>`).join('')}</div>`,answer:cnt,
       hints:[LOOK,RULE[k],'נעבור על המספרים אחד-אחד ונספור. אפשר לסמן באצבע כל מספר שבדקנו.'],
       explain:`${RULE[k]} המספרים שמתחלקים ב-${k}: ${list.filter(n=>good.has(n)).join(', ')} – בסך הכל <b>${cnt}</b>.`});}
+  if(sub==='build'){/* use the digits 3, 6, 5, 0 to build a number divisible by k */
+    let ds,all;
+    for(let g=0;g<200;g++){ds=shuffle([0,1,2,3,4,5,6,7,8,9]).slice(0,4);if(k===10&&!ds.includes(0))ds[R(0,3)]=0;
+      all=[];for(const x of ds)for(const y of ds)for(const z of ds)if(x&&new Set([x,y,z]).size===3)all.push(x*100+y*10+z);
+      if(all.some(n=>OK[k].includes(n%10))&&all.filter(n=>!OK[k].includes(n%10)).length>=3)break;}
+    const right=P(all.filter(n=>OK[k].includes(n%10))),set=new Set([right]);
+    while(set.size<4)set.add(P(all.filter(n=>!OK[k].includes(n%10))));
+    return choiceQ({key:'vbd'+k+ds.join('')+right,prompt:`בנו מספר מהספרות האלה (כל ספרה פעם אחת לכל היותר). איזה מהמספרים <span class="hl">מתחלק ב-${k}</span>?`,
+      visual:`<div class="digit-tiles">${ds.map(x=>`<b>${x}</b>`).join('')}</div>`,choices:shuffle([...set]).map(n=>({label:String(n),value:n})),answer:right,
+      hints:[LOOK,RULE[k],'נבדוק רק את הספרה האחרונה (הימנית) של כל מספר.'],
+      explain:`ספרת היחידות של ${right} היא ${right%10}. ${RULE[k]} התשובה: <b>${right}</b>.`});}
+  if(sub==='coins'){/* paid only with coins of k ₪ and got no change */
+    const c=P([2,5,10]),G4=shuffle([['🧩','פאזל'],['🃏','קלפים'],['🎲','משחק קופסה'],['♟️','דמקה'],['🪀','יו-יו'],['🧸','דובי'],['⚽','כדור'],['🪁','עפיפון']]).slice(0,4);
+    const ok=x=>x%c===0,price=m=>{let x;do{x=R(11,99)}while(ok(x)!==m);return x};
+    const prices=[price(true)];while(prices.length<4){const x=price(false);if(!prices.includes(x))prices.push(x)}
+    const p=per();
+    return choiceQ({key:'vco'+c+prices.join(','),prompt:`${p.n} ${G(p,'שילם','שילמה')} <span class="hl">רק במטבעות של ${c} ₪</span> ולא ${G(p,'קיבל','קיבלה')} עודף. איזה משחק ${G(p,'הוא קנה','היא קנתה')}?`,
+      choices:shuffle(G4.map(([e,nm],i)=>({label:`${e} ${nm} – ${prices[i]} ₪`,value:prices[i]}))),answer:prices[0],
+      hints:[`אם משלמים רק במטבעות של ${c} ₪ בלי עודף – המחיר חייב להתחלק ב-${c}.`,RULE[c],'נבדוק את ספרת היחידות של כל מחיר.'],
+      explain:`${RULE[c]} רק המחיר <b>${prices[0]} ₪</b> מתחלק ב-${c}.`});}
+  if(sub==='cond'){/* odd, divisible by 5 and bigger than 40 */
+    const lim=R(3,7)*10,V=[
+      {t:`מתחלק ב-5, אי-זוגי וגדול מ-${lim}`,ok:x=>x%5===0&&x%2===1&&x>lim},
+      {t:`מתחלק ב-2, לא מתחלק ב-5 וקטן מ-${lim}`,ok:x=>x%2===0&&x%5!==0&&x<lim},
+      {t:`זוגי, מתחלק ב-5 וגדול מ-${lim}`,ok:x=>x%10===0&&x>lim}];
+    const v=P(V),cand=[];for(let x=11;x<=99;x++)cand.push(x);
+    const right=P(cand.filter(v.ok)),near=cand.filter(x=>!v.ok(x)&&(x%5===0||x%2===0)&&Math.abs(x-lim)<35);
+    const set=new Set([right]);while(set.size<4)set.add(P(near));
+    return choiceQ({key:'vcd'+v.t+[...set].sort().join(','),prompt:`איזה מספר <span class="hl">${v.t}</span>?`,
+      choices:shuffle([...set]).map(n=>({label:String(n),value:n})),answer:right,
+      hints:['יש כאן כמה תנאים – המספר צריך לעמוד בכולם!','נבדוק תנאי אחד בכל פעם ונפסול מספרים שלא מתאימים.',`${RULE[5]} ${RULE[2]}`],
+      explain:`רק המספר <b>${right}</b> עומד בכל התנאים: ${v.t}.`});}
 }
 
 /* ---------- 6. word problems ---------- */
@@ -744,6 +942,11 @@ const WP=[
  ()=>{let a,b,c;do{a=R(15,48);b=R(5,a-5);c=R(5,30)}while(a-b+c>100);return{t:`באוטובוס היו ${a} נוסעים. בתחנה ירדו ${b} נוסעים ועלו ${c} נוסעים חדשים. כמה נוסעים יש עכשיו באוטובוס?`,ans:a-b+c,h:'שני שלבים: מה קורה למספר כשנוסעים יורדים? ומה קורה כשעולים?',ex:`${a} − ${b} = ${a-b}, &nbsp; ${a-b} + ${c} = ${a-b+c}`}},
  ()=>{const p=per(),a=tab(2),b=R(2,10);return{t:`בספר יש ${a*b} עמודים. ${p.n} ${G(p,'קורא','קוראת')} ${a} עמודים בכל יום. בכמה ימים ${G(p,'יסיים','תסיים')} ${p.n} את הספר?`,ans:b,h:'כל יום קוראים אותה כמות עמודים. כמה "קבוצות" כאלה יש בספר?',ex:`${a*b} : ${a} = ${b}`}},
  ()=>{const[p,q]=two();const k=P([2,3,4,5]),a=R(3,10);return{t:`ל${p.n} יש ${a} צדפים. ל${q.n} יש פי ${k} צדפים מאשר ל${p.n}. כמה צדפים יש ל${q.n}?`,ans:a*k,h:`"פי ${k}" אומר שהכמות של ${p.n} חוזרת ${k} פעמים.`,ex:`${a} × ${k} = ${a*k}`}},
+ ()=>{const[a,b]=noRegAdd();return{t:`בחנות הצעצועים נמכרו ${a} צעצועים ביום ראשון ו-${b} צעצועים ביום שני. כמה צעצועים נמכרו בשני הימים יחד?`,ans:a+b,h:'"בשני הימים יחד" – מחברים את שתי הכמויות.',ex:`${a} + ${b} = ${a+b}`}},
+ ()=>{const c=P([6,10,4,5,8].filter(x=>tables().includes(x)).concat([6])),k=R(2,9);return{t:`במחירון של המזנון: בקבוק מים עולה ${c} ₪. כמה עולים ${k} בקבוקי מים?`,ans:c*k,h:`כל בקבוק עולה אותו מחיר – ${k} פעמים ${c}.`,ex:`${k} × ${c} = ${c*k}`}},
+ ()=>{const c=P([6,10,4,5,8].filter(x=>tables().includes(x)).concat([6])),k=R(2,9);return{t:`בקבוק מיץ עולה ${c} ₪. בכל הבקבוקים שקנינו שילמנו ${c*k} ₪. כמה בקבוקים קנינו?`,ans:k,h:`כמה פעמים ${c} נכנס ב-${c*k}? (רמז: חילוק)`,ex:`${c*k} : ${c} = ${k}`}},
+ ()=>{const p=per(),e=P([2,3,4]),k=R(2,9);return{t:`במתכון של ${p.n} צריך ${e} ביצים כדי לאפות עוגה אחת. כמה ביצים צריך כדי לאפות ${k} עוגות?`,ans:e*k,h:`לכל עוגה ${e} ביצים – ${k} עוגות זה ${k} קבוצות שוות.`,ex:`${k} × ${e} = ${e*k}`}},
+ ()=>{const p=per();let a,b;do{a=R(120,600);b=R(110,380)}while(!noCarry(a,b,'−')||b>=a||a%10===0);return{t:`בספרייה של ${p.n} היו ${a} ספרים. השאילו ${b} ספרים. כמה ספרים נשארו בספרייה?`,ans:a-b,h:'השאילו ספרים – הם יצאו מהספרייה, ולכן נשארו פחות.',ex:`${a} − ${b} = ${a-b}`}},
 ];
 /* harder (two-step) word problems – used at the end of a round */
 const WPH=[
@@ -751,8 +954,28 @@ const WPH=[
  ()=>{const p=per();let x,y,k;do{x=R(5,40);y=P([2,3,4,5,10]);k=R(2,8)}while(x+y*k>100);return{t:`בקופה של ${p.n} יש ${x} ₪. בכל שבוע ${G(p,'הוא מוסיף','היא מוסיפה')} לקופה ${y} ₪. כמה כסף יהיה בקופה אחרי ${k} שבועות?`,ans:x+y*k,h:'שני שלבים: כמה כסף נוסף בכל השבועות יחד? ואז נוסיף את מה שהיה בקופה בהתחלה.',ex:`${k} × ${y} = ${y*k}, &nbsp; ${x} + ${y*k} = ${x+y*k}`}},
  ()=>{const p=per();let a,b,c;do{a=R(11,39);c=R(1,3)*10+(10-a%10);b=R(11,35)}while(a%10===0||b%10===0||a+b+c>100);return{t:`${p.n} ${G(p,'קרא','קראה')} ספר: ביום ראשון ${a} עמודים, ביום שני ${b} עמודים וביום שלישי ${c} עמודים. כמה עמודים ${G(p,'קרא','קראה')} ${p.n} בסך הכל?`,ans:a+b+c,h:'מחברים שלושה מספרים. טיפ: חפשו שני מספרים שביחד נותנים מספר עגול!',ex:`${a} + ${c} = ${a+c}, &nbsp; ${a+c} + ${b} = ${a+b+c}`}},
  ()=>{const p=per(),k=R(2,5),a=Math.max(3,tab(2)),x=R(2,a-1);return{t:`${p.n} ${G(p,'חילק','חילקה')} ${a*k} סוכריות שווה בשווה בין ${k} חברים. כל חבר אכל ${x} סוכריות. כמה סוכריות נשארו לכל חבר?`,ans:a-x,h:'שני שלבים: קודם נמצא כמה סוכריות קיבל כל חבר (חילוק), ואחר כך כמה נשארו לו.',ex:`${a*k} : ${k} = ${a}, &nbsp; ${a} − ${x} = ${a-x}`}},
+ ()=>{const[b,c]=noRegAdd();return{t:`אחרי שהשאילו מהספרייה ${b} ספרים, נשארו בה ${c} ספרים. כמה ספרים היו בספרייה בהתחלה?`,ans:b+c,h:'בהתחלה היו גם הספרים שנשארו וגם הספרים שהשאילו. איזו פעולה מתאימה?',ex:`${c} + ${b} = ${b+c}`}},
+ ()=>{const g=P([3,4,5,6]),n=R(4,9),f=P([2,3]);return{t:`לקראת הטיול ביער, ${g*n} ילדים הסתדרו בקבוצות של ${g}. כל קבוצה קיבלה ${f} פנסים. כמה פנסים חולקו בסך הכל?`,ans:n*f,h:'שני שלבים: קודם נמצא כמה קבוצות יש (חילוק), ואחר כך כמה פנסים קיבלו כל הקבוצות (כפל).',ex:`${g*n} : ${g} = ${n}, &nbsp; ${n} × ${f} = ${n*f}`}},
+ ()=>{const p=per(),k=P([2,4,6,8,10]);return{t:`${p.n} רוצה לאפות ${k} עוגות. לכל עוגה צריך 3 ביצים, ובכל קרטון יש 6 ביצים. כמה קרטונים של ביצים ${G(p,'הוא צריך','היא צריכה')}?`,ans:k*3/6,h:'שני שלבים: קודם נחשב כמה ביצים צריך בסך הכל, ואחר כך כמה קרטונים של 6.',ex:`${k} × 3 = ${k*3}, &nbsp; ${k*3} : 6 = ${k/2}`}},
+ ()=>{const[p,q]=two();let a,b;do{a=R(110,300);b=R(11,250)}while(!noCarry(a,b,'+')||!noCarry(a,a+b,'+'));return{t:`ל${p.n} יש ${a} בולים. ל${q.n} יש ${b} בולים יותר מאשר ל${p.n}. כמה בולים יש לשניהם יחד?`,ans:a+a+b,h:`שני שלבים: קודם נמצא כמה בולים יש ל${q.n}, ואחר כך נחבר את של שניהם.`,ex:`${a} + ${b} = ${a+b}, &nbsp; ${a} + ${a+b} = ${2*a+b}`}},
+];
+/* "which exercise matches the story?" – choose, no need to solve */
+const WOP=[
+ ()=>{const p=per(),k=P([2,3,4,5]),b=R(3,9);return{t:`ל${p.n} יש ${k*b} קלפים. ${G(p,'הוא חילק','היא חילקה')} אותם שווה בשווה בין ${k} חברים. כמה קלפים קיבל כל חבר?`,a:k*b,b:k,op:':'}},
+ ()=>{const k=R(3,8),b=R(2,9);return{t:`בכל שקית יש ${b} סוכריות. כמה סוכריות יש ב-${k} שקיות?`,a:k,b,op:'×'}},
+ ()=>{const p=per(),a=R(12,60),b=R(3,9);return{t:`ל${p.n} היו ${a} בלונים. ${b} בלונים עפו. כמה בלונים נשארו?`,a,b,op:'−'}},
+ ()=>{const p=per(),a=R(12,60),b=R(3,9);return{t:`ל${p.n} היו ${a} גולות, ${G(p,'והוא קיבל','והיא קיבלה')} עוד ${b} גולות. כמה גולות יש ל${p.n} עכשיו?`,a,b,op:'+'}},
+ ()=>{const g=R(3,6),n=R(3,8);return{t:`${g*n} ילדים מתחלקים לקבוצות של ${g} ילדים. כמה קבוצות יהיו?`,a:g*n,b:g,op:':'}},
+ ()=>{const r=R(3,8),c=R(3,9);return{t:`בגינה יש ${r} שורות של עציצים, ובכל שורה ${c} עציצים. כמה עציצים יש בגינה?`,a:r,b:c,op:'×'}},
 ];
 function genWord(sub){
+  if(sub==='op'){const w=P(WOP)(),t=w.t.replace(/(\d+)/g,'<span class="hl">$1</span>');
+    const mk=o=>`${w.a} ${o} ${w.b}`,right=mk(w.op),ops=shuffle(['+','−','×',':'].filter(o=>o!==w.op&&!(o===':'&&w.a%w.b))).slice(0,2);
+    const val=o=>o==='+'?w.a+w.b:o==='−'?w.a-w.b:o==='×'?w.a*w.b:w.a/w.b;
+    return choiceQ({key:'wo'+w.t,prompt:`<span style="font-weight:500">${t}</span><br><b>איזה תרגיל מתאים לסיפור?</b>`,isWord:true,
+      choices:shuffle([w.op,...ops]).map(o=>({label:eq(mk(o)),value:mk(o)})),answer:right,c3:true,
+      hints:['נקרא שוב לאט: מה קורה בסיפור? 🧐','מקבלים עוד ⬅ חיבור. נותנים / הולך לאיבוד ⬅ חיסור. קבוצות שוות ⬅ כפל. מחלקים שווה בשווה ⬅ חילוק.','אפשר לבדוק: האם התוצאה של התרגיל הגיונית בסיפור?'],
+      explain:`התרגיל המתאים: ${eq(right+' = '+val(w.op))}`});}
   const w=(typeof sub==='string'?WPH[+sub.slice(1)]:WP[sub])();const t=w.t.replace(/(\d+)/g,'<span class="hl">$1</span>');
   return numQ({key:'w'+w.t,prompt:`<span style="font-weight:500">${t}</span>`,answer:w.ans,isWord:true,
     hints:['נקרא שוב לאט: מה אנחנו יודעים? ומה שואלים? 🧐',w.h,'נכתוב תרגיל עם המספרים מהסיפור ונפתור אותו. אפשר גם לצייר! ✏️'],
@@ -760,7 +983,7 @@ function genWord(sub){
 }
 
 /* ---------- 7. angles ---------- */
-const ANG={acute:'חדה',right:'ישרה',obtuse:'קהה'};
+const ANG={acute:'חדה',right:'ישרה',obtuse:'קהה',straight:'שטוחה'};
 const ANGEX='זווית <b>ישרה</b> – בדיוק כמו פינת דף. זווית <b>חדה</b> – צרה יותר מפינת דף. זווית <b>קהה</b> – רחבה יותר מפינת דף.';
 const rad=d=>d*Math.PI/180;
 const pt=(L,d)=>[+(L*Math.cos(rad(d))).toFixed(1),+(-L*Math.sin(rad(d))).toFixed(1)];
@@ -825,29 +1048,74 @@ function genAng(sub){
       choices:['acute','right','obtuse'].map(k=>({label:'זווית '+ANG[k],value:k})),answer:t,c3:true,
       hints:['נסתכל רק על שני המחוגים – הם שתי הקרניים של הזווית, והמרכז הוא הקודקוד.','רבע מהשעון (3 "קפיצות" של שעה) יוצר בדיוק פינה של דף.',ANGEX],
       explain:`בשעה ${h}:00 המחוגים יוצרים <b>זווית ${ANG[t]}</b>. רבע שעון (3 שעות) = זווית ישרה; פחות מזה – חדה; יותר – קהה.`});}
-  if(sub==='shape'){
-    const S=[['ריבוע',[[30,20],[150,20],[150,140],[30,140]],4],['מלבן',[[10,40],[190,40],[190,130],[10,130]],4],['משולש',[[30,140],[170,140],[30,30]],1],
-      ['משולש',[[20,140],[180,140],[100,25]],0],['טרפז',[[30,140],[185,140],[120,30],[30,30]],2],['מחומש (בית)',[[40,145],[160,145],[160,75],[100,15],[40,75]],2],
-      ['מקבילית',[[15,140],[145,140],[185,40],[55,40]],0],['משולש',[[20,140],[180,140],[60,30]],0]];
-    const [nm,pts,ans]=P(S);const flip=Math.random()<.5;
-    const vis=`<div class="vcol"><div class="shape"><svg viewBox="0 0 200 160"><g ${flip?'transform="translate(200,0) scale(-1,1)"':''}>
+  if(sub==='shape'||sub==='poly'){/* count right / acute / obtuse angles (computed from the drawing) */
+    const [nm,pts]=P(POLY),kinds=polyAngles(pts),flip=Math.random()<.5;
+    const what=sub==='shape'?'right':P(['acute','obtuse','obtuse','all']),ans=what==='all'?pts.length:kinds.filter(k=>k===what).length;
+    const vis=`<div class="shape"><svg viewBox="0 0 200 160"><g ${flip?'transform="translate(200,0) scale(-1,1)"':''}>
       <polygon points="${pts.map(p=>p.join(',')).join(' ')}" fill="#e3f8fc" stroke="#00b8d4" stroke-width="5" stroke-linejoin="round"/>
       ${pts.map(p=>`<circle class="cdot" cx="${p[0]}" cy="${p[1]}" r="9"/>`).join('')}</g></svg></div>
-      <div class="vnote">👆 אפשר ללחוץ על פינה כדי לסמן שבדקתם אותה</div></div>`;
-    return numQ({key:'gs'+nm+ans+pts.length+flip+pts[2],prompt:`כמה <span class="hl">זוויות ישרות</span> יש בצורה?`,visual:vis,answer:ans,
-      hints:['נבדוק כל פינה בנפרד – ונסמן אותה כדי לא לספור פעמיים.','זווית ישרה נראית בדיוק כמו פינה של דף – כמו הפינה של המחברת.','אפשר גם שאין אף זווית ישרה – ואז התשובה היא 0!'],
-      explain:`בצורה הזו יש <b>${ans}</b> זוויות ישרות.`});}
+      <div class="vnote">👆 אפשר ללחוץ על פינה כדי לסמן שבדקתם אותה</div>`;
+    const cnt=k=>kinds.filter(x=>x===k).length,summary=`${cnt('right')} ישרות, ${cnt('acute')} חדות ו-${cnt('obtuse')} קהות`;
+    return numQ({key:'gs'+what+pts.join('_')+flip,prompt:what==='all'?`כמה <span class="hl">זוויות</span> יש ל${nm}?`:`כמה <span class="hl">זוויות ${ANGP[what]}</span> יש בצורה?`,
+      visual:what==='all'?`<div class="vcol">${vis}</div>`:`<div class="vcol corner-scope">${vis}</div>`,answer:ans,
+      hints:what==='all'?['כל פינה של הצורה היא זווית – הקודקוד שלה הוא הפינה.','נספור את הפינות, ונסמן כל פינה שספרנו.','במצולע – מספר הזוויות שווה למספר הצלעות!']
+        :['נבדוק כל פינה בנפרד – ונסמן אותה כדי לא לספור פעמיים.',ANGEX,what==='right'?'אפשר גם שאין אף זווית ישרה – ואז התשובה היא 0!':'אפשר גם שאין אף זווית כזו – ואז התשובה היא 0!'],
+      explain:what==='all'?`ל${nm} יש <b>${ans}</b> זוויות – כמספר הפינות שלו.`:`בצורה הזו יש <b>${ans}</b> זוויות ${ANGP[what]}. (בסך הכל: ${summary})`});}
+  if(sub==='isAngle'){/* which drawing is an angle? */
+    const L='stroke="#2d2250" stroke-width="6" stroke-linecap="round" fill="none"';
+    const F={angle:`<path d="M20 85 L105 85 M20 85 L75 20" ${L}/><circle cx="20" cy="85" r="6" fill="#ff4fa3"/>`,
+      gap:`<path d="M20 85 L105 85 M36 66 L80 18" ${L}/>`,
+      curve:`<path d="M20 85 L105 85 M20 85 Q30 30 80 20" ${L}/>`,
+      arc:`<path d="M95 25 Q15 20 25 85" ${L}/>`,
+      parallel:`<path d="M20 85 L105 85 M20 45 L105 45" ${L}/>`};
+    const labels=['א','ב','ג'],items=shuffle(['angle',...shuffle(['gap','curve','arc','parallel']).slice(0,2)]);
+    const vis=`<div class="angs three">${items.map((k,i)=>`<div class="angbox"><span class="alabel">${labels[i]}</span><svg viewBox="0 0 125 105"><g transform="rotate(${R(-30,30)} 62 52)">${F[k]}</g></svg></div>`).join('')}</div>`;
+    const right=items.indexOf('angle');
+    return choiceQ({key:'gia'+items.join(),prompt:'איזה ציור הוא <span class="hl">זווית</span>?',visual:vis,
+      choices:labels.map((l,i)=>({label:'ציור '+l,value:i})),answer:right,c3:true,
+      hints:['זווית בנויה משני קווים ישרים (שוקיים) שיוצאים מאותה נקודה (קודקוד).','שני הקווים חייבים להיפגש בנקודה – אם יש רווח ביניהם, זו לא זווית.','קו עקום לא יכול להיות שוק של זווית – השוקיים תמיד ישרות!'],
+      explain:`ציור ${labels[right]} הוא זווית: שתי שוקיים ישרות שיוצאות מאותו קודקוד.`});}
+  if(sub==='name4'){const t=P(['acute','right','obtuse','straight','straight']),d=t==='straight'?180:randAng(t),rot=R(0,3)*90+R(-15,15);
+    return choiceQ({key:'gn4'+d+'_'+rot,prompt:'איזו זווית זו?',visual:`<div class="vcol corner-scope"><div class="angbox">${angleSVG(d,rot,R(75,100),R(75,100))}</div>${cornerBtn}</div>`,
+      choices:['acute','right','obtuse','straight'].map(k=>({label:'זווית '+ANG[k],value:k})),answer:t,
+      hints:['נשווה את הזווית לפינה של דף: צרה יותר, בדיוק כמוה, או רחבה יותר?','זווית <b>שטוחה</b> נראית כמו קו ישר אחד – שתי השוקיים בכיוונים הפוכים.',ANGEX],
+      explain:`זו <b>זווית ${ANG[t]}</b>. ${t==='straight'?'השוקיים שלה יוצרות קו ישר אחד.':ANGEX}`});}
+  if(sub==='relation'){const O=['acute','right','obtuse','straight'];let i,j;do{i=R(0,3);j=R(0,3)}while(i===j);
+    const ans=i>j?'big':'small';
+    return choiceQ({key:'grl'+i+j,prompt:`השלימו: <b>זווית ${ANG[O[i]]}</b> היא ______ מ<b>זווית ${ANG[O[j]]}</b>.`,
+      choices:[{label:'גדולה יותר',value:'big'},{label:'קטנה יותר',value:'small'}],answer:ans,
+      hints:['נסדר את סוגי הזוויות מהקטנה לגדולה: חדה, ישרה, קהה, שטוחה.','זווית ישרה היא כמו פינת דף. חדה – צרה ממנה, קהה – רחבה ממנה.','זווית שטוחה פתוחה עד הסוף – כמו קו ישר.'],
+      explain:`הסדר מהקטנה לגדולה: חדה, ישרה, קהה, שטוחה. לכן זווית ${ANG[O[i]]} <b>${ans==='big'?'גדולה':'קטנה'}</b> יותר מזווית ${ANG[O[j]]}.`});}
+  if(sub==='extreme'){const big=Math.random()<.5,labels=['א','ב','ג'];let ds;
+    do{ds=[R(25,165),R(25,165),R(25,165)]}while(Math.min(Math.abs(ds[0]-ds[1]),Math.abs(ds[1]-ds[2]),Math.abs(ds[0]-ds[2]))<22);
+    const target=ds.indexOf(big?Math.max(...ds):Math.min(...ds)),order=[...ds].sort((a,b)=>a-b);
+    const len=d=>{const r=order.indexOf(d);return big?[95,75,50][r]:[50,75,95][r]};/* misleading arm lengths */
+    const vis=`<div class="angs three">${ds.map((d,i)=>`<div class="angbox"><span class="alabel">${labels[i]}</span>${angleSVG(d,R(0,3)*90+R(-20,20),len(d),len(d),['#7c4dff','#ff8a00','#00b8d4'][i],110)}</div>`).join('')}</div>`;
+    return choiceQ({key:'gx'+ds.join('_')+big,prompt:`איזו זווית היא <span class="hl">הכי ${big?'גדולה':'קטנה'}</span>?`,visual:vis,
+      choices:labels.map((l,i)=>({label:'זווית '+l,value:i})),answer:target,c3:true,
+      hints:['גודל הזווית נקבע לפי הפתיחה בין השוקיים – לא לפי האורך שלהן! 📏',`דמיינו פה של תנין 🐊: איזה פה פתוח הכי ${big?'הרבה':'מעט'}?`,'אפשר להשוות כל זווית לפינת דף.'],
+      explain:`זווית ${labels[target]} ${big?'פתוחה הכי הרבה':'פתוחה הכי מעט'}, לכן היא <b>הכי ${big?'גדולה':'קטנה'}</b>. אורך השוקיים לא משנה!`});}
 }
+const ANGP={acute:'חדות',right:'ישרות',obtuse:'קהות'};
+/* polygons for angle counting – the angle types are computed from the points, not hard-coded */
+const POLY=[['ריבוע',[[30,20],[150,20],[150,140],[30,140]]],['מלבן',[[10,40],[190,40],[190,130],[10,130]]],['משולש',[[30,140],[170,140],[30,30]]],
+  ['משולש',[[20,140],[180,140],[100,25]]],['משולש',[[10,140],[190,140],[60,80]]],['משולש',[[20,140],[180,140],[60,30]]],['משולש',[[10,30],[180,140],[50,140]]],
+  ['מרובע',[[30,140],[185,140],[120,30],[30,30]]],['מרובע',[[15,140],[145,140],[185,40],[55,40]]],['מרובע',[[100,10],[170,80],[100,150],[30,80]]],
+  ['מרובע',[[100,30],[190,80],[100,130],[10,80]]],['מרובע',[[30,140],[170,140],[140,40],[30,40]]],['מרובע',[[15,140],[185,140],[140,40],[60,40]]],
+  ['מחומש',[[40,145],[160,145],[160,75],[100,15],[40,75]]],['מחומש',[[100,15],[180,72],[150,148],[50,148],[20,72]]],['מחומש',[[30,140],[170,140],[170,70],[110,20],[30,60]]],
+  ['מחומש',[[30,140],[170,140],[185,70],[100,15],[15,70]]],['משושה',[[60,20],[140,20],[185,80],[140,140],[60,140],[15,80]]]];
+function polyAngles(p){const n=p.length;return p.map((v,i)=>{const A=p[(i+n-1)%n],B=p[(i+1)%n],u=[A[0]-v[0],A[1]-v[1]],w=[B[0]-v[0],B[1]-v[1]];
+  const d=Math.acos((u[0]*w[0]+u[1]*w[1])/Math.hypot(...u)/Math.hypot(...w))*180/Math.PI;return Math.abs(d-90)<1?'right':d<90?'acute':'obtuse'})}
 
 /* ================== topics ================== */
 const TOPICS=[
- {id:'pv',name:'המבנה העשרוני',sub:'מאות, עשרות ויחידות עד 1,000',icon:'🏰',c:'#7c4dff',cd:'#5a2fd6',gen:genPV,subs:['digit','compose','value','expand','blocks','compare','plusminus','build'],hard:['composeH','plusminusH','compareExp']},
+ {id:'pv',name:'המבנה העשרוני',sub:'מאות, עשרות ויחידות עד 1,000',icon:'🏰',c:'#7c4dff',cd:'#5a2fd6',gen:genPV,subs:['digit','compose','value','expand','blocks','compare','plusminus','build','words','toWords','valueWhich','between','hundreds','money'],hard:['composeH','plusminusH','compareExp','props','money']},
  {id:'seq',name:'סדרות',sub:'מגלים את הכלל הסודי',icon:'🐾',c:'#00b8d4',cd:'#0090a8',gen:genSeq,subs:['missing','missing','next','rule','twoAhead'],hard:['missingH','twoAheadH','firstH']},
- {id:'add',name:'חיבור וחיסור',sub:'עד 100 עם המרה, עד 1,000 בלי',icon:'➕',c:'#ff8a00',cd:'#d06a00',gen:genAdd,subs:['add2','sub2','add3','sub3','missing','round','add2','sub2'],hard:['chain3','mixChain','missingSub']},
- {id:'mul',name:'כפל וחילוק',sub:'עד 100 – לוח הכפל',icon:'✖️',c:'#ff4fa3',cd:'#c2366f',gen:genMul,subs:['prod','prod','div','div','missing','array','tf','which'],hard:['chainMul','chainMD','chainMD','cmpExpr']},
- {id:'divis',name:'סימני התחלקות',sub:'ב-2, ב-5 וב-10',icon:'🔍',c:'#22c55e',cd:'#15803d',gen:genDiv,subs:['yn','yn','which','whichNot','both','digit'],hard:['both','notBoth','countDiv']},
- {id:'word',name:'שאלות מילוליות',sub:'סיפורים עם מספרים',icon:'📖',c:'#ef4444',cd:'#b91c1c',gen:genWord,subs:WP.map((_,i)=>i),hard:[12,13,...WPH.map((_,i)=>'h'+i)]},
- {id:'ang',name:'זוויות',sub:'שיום, השוואה וסרטוט',icon:'📐',c:'#eab308',cd:'#a16207',gen:genAng,subs:['name','name','compare','pick','draw','draw','clock','shape'],hard:['compareH','clock','shape']},
+ {id:'add',name:'חיבור וחיסור',sub:'עד 100 עם המרה, עד 1,000 בלי',icon:'➕',c:'#ff8a00',cd:'#d06a00',gen:genAdd,subs:['add2','sub2','add3','sub3','missing','round','add2','sub2','jump','missing3'],hard:['chain3','mixChain','missingSub','paren','chain3d','cmpNoCalc']},
+ {id:'mul',name:'כפל וחילוק',sub:'עד 100 – לוח הכפל',icon:'✖️',c:'#ff4fa3',cd:'#c2366f',gen:genMul,subs:['prod','prod','div','div','missing','array','tf','which','family','missingDiv','multipleOf','notMultiple'],hard:['chainMul','chainMD','chainMD','cmpExpr','ineqMul','commut']},
+ {id:'divis',name:'סימני התחלקות',sub:'ב-2, ב-5 וב-10',icon:'🔍',c:'#22c55e',cd:'#15803d',gen:genDiv,subs:['yn','yn','which','whichNot','both','digit','build','coins'],hard:['both','notBoth','countDiv','cond','build']},
+ {id:'word',name:'שאלות מילוליות',sub:'סיפורים עם מספרים',icon:'📖',c:'#ef4444',cd:'#b91c1c',gen:genWord,subs:[...WP.map((_,i)=>i),'op','op','op'],hard:[12,13,...WPH.map((_,i)=>'h'+i)]},
+ {id:'ang',name:'זוויות',sub:'שיום, השוואה וסרטוט',icon:'📐',c:'#eab308',cd:'#a16207',gen:genAng,subs:['name','name','compare','pick','draw','draw','clock','shape','isAngle','name4','relation','extreme'],hard:['compareH','clock','shape','poly','poly','extreme']},
 ];
 /* n questions; the last hardN come from the topic's harder question types */
 function genN(t,n,hardN=0){
