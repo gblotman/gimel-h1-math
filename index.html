@@ -164,6 +164,8 @@ button{font-family:inherit;touch-action:manipulation;cursor:pointer;color:inheri
 .shape svg{width:min(260px,72vw);height:auto}
 .shape .cdot{fill:#fff;stroke:var(--purple);stroke-width:3;cursor:pointer}
 .shape .cdot.m{fill:#22c55e;stroke:#15803d}
+.show-corner .shape .cdot{opacity:.35}
+.shape .corner{stroke-width:2.5}
 .clock svg{width:min(200px,56vw);height:auto}
 .vnote{font-size:13px;color:var(--ink2);text-align:center}
 .wordnum{font-size:clamp(22px,6vw,32px);font-weight:900;color:var(--purple);text-align:center;background:#f3efff;border:3px dashed #c9bbff;border-radius:18px;padding:12px 18px;line-height:1.4}
@@ -1080,11 +1082,12 @@ function genAng(sub){
     const what=sub==='shape'?(Math.random()<.2?'all':'right'):P(['acute','obtuse']),ans=what==='all'?pts.length:kinds.filter(k=>k===what).length;
     const vis=`<div class="shape"><svg viewBox="0 0 200 160"><g ${flip?'transform="translate(200,0) scale(-1,1)"':''}>
       <polygon points="${pts.map(p=>p.join(',')).join(' ')}" fill="#e3f8fc" stroke="#00b8d4" stroke-width="5" stroke-linejoin="round"/>
+      ${polyCorners(pts)}
       ${pts.map(p=>`<circle class="cdot" cx="${p[0]}" cy="${p[1]}" r="9"/>`).join('')}</g></svg></div>
       <div class="vnote">👆 אפשר ללחוץ על פינה כדי לסמן שבדקתם אותה</div>`;
     const cnt=k=>kinds.filter(x=>x===k).length,summary=`${cnt('right')} ישרות, ${cnt('acute')} חדות ו-${cnt('obtuse')} קהות`;
     return numQ({key:'gs'+what+pts.join('_')+flip,prompt:what==='all'?`כמה <span class="hl">זוויות</span> יש ל${nm}?`:`כמה <span class="hl">זוויות ${ANGP[what]}</span> יש בצורה?`,
-      visual:what==='all'?`<div class="vcol">${vis}</div>`:`<div class="vcol corner-scope">${vis}</div>`,answer:ans,
+      visual:what==='all'?`<div class="vcol">${vis}</div>`:`<div class="vcol corner-scope">${vis}${cornerBtn}</div>`,answer:ans,
       hints:what==='all'?['כל פינה של הצורה היא זווית – הקודקוד שלה הוא הפינה.','נספור את הפינות, ונסמן כל פינה שספרנו.','במצולע – מספר הזוויות שווה למספר הצלעות!']
         :['נבדוק כל פינה בנפרד – ונסמן אותה כדי לא לספור פעמיים.',ANGEX,what==='right'?'אפשר גם שאין אף זווית ישרה – ואז התשובה היא 0!':'אפשר גם שאין אף זווית כזו – ואז התשובה היא 0!'],
       explain:what==='all'?`ל${nm} יש <b>${ans}</b> זוויות – כמספר הפינות שלו.`:`בצורה הזו יש <b>${ans}</b> זוויות ${ANGP[what]}. (בסך הכל: ${summary})`});}
@@ -1131,6 +1134,12 @@ const POLY=[['ריבוע',[[30,20],[150,20],[150,140],[30,140]]],['מלבן',[[1
   ['מרובע',[[100,30],[190,80],[100,130],[10,80]]],['מרובע',[[30,140],[170,140],[140,40],[30,40]]],['מרובע',[[15,140],[185,140],[140,40],[60,40]]],
   ['מחומש',[[40,145],[160,145],[160,75],[100,15],[40,75]]],['מחומש',[[100,15],[180,72],[150,148],[50,148],[20,72]]],['מחומש',[[30,140],[170,140],[170,70],[110,20],[30,60]]],
   ['מחומש',[[30,140],[170,140],[185,70],[100,15],[15,70]]],['משושה',[[60,20],[140,20],[185,80],[140,140],[60,140],[15,80]]]];
+/* a dashed "page corner" square at every vertex, lying along one side and pointing into the shape */
+function polyCorners(p,c=40){const n=p.length;return p.map((v,i)=>{const A=p[(i+n-1)%n],B=p[(i+1)%n];
+  const L=Math.hypot(B[0]-v[0],B[1]-v[1]),e=[(B[0]-v[0])/L,(B[1]-v[1])/L];let m=[-e[1],e[0]];
+  if(m[0]*(A[0]-v[0])+m[1]*(A[1]-v[1])<0)m=[-m[0],-m[1]];
+  const q=(a,b)=>`${(v[0]+a*e[0]*c+b*m[0]*c).toFixed(1)},${(v[1]+a*e[1]*c+b*m[1]*c).toFixed(1)}`;
+  return `<polygon class="corner" points="${q(0,0)} ${q(1,0)} ${q(1,1)} ${q(0,1)}"/>`}).join('')}
 function polyAngles(p){const n=p.length;return p.map((v,i)=>{const A=p[(i+n-1)%n],B=p[(i+1)%n],u=[A[0]-v[0],A[1]-v[1]],w=[B[0]-v[0],B[1]-v[1]];
   const d=Math.acos((u[0]*w[0]+u[1]*w[1])/Math.hypot(...u)/Math.hypot(...w))*180/Math.PI;return Math.abs(d-90)<1?'right':d<90?'acute':'obtuse'})}
 
