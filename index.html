@@ -34,6 +34,12 @@ button{font-family:inherit;touch-action:manipulation;cursor:pointer;color:inheri
 @keyframes floaty{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-22px) rotate(12deg)}}
 #confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:50}
 .app{position:relative;z-index:1;max-width:780px;margin:0 auto;padding:14px 14px 28px}
+#splash{position:fixed;inset:0;z-index:9999;background:#120a24;display:flex;align-items:center;justify-content:center;transition:opacity .5s ease}
+#splash[hidden]{display:none}
+#splash.out{opacity:0;pointer-events:none}
+#splash video{width:100%;height:100%;object-fit:cover;background:#120a24}
+@media (min-aspect-ratio:1/1){#splash video{object-fit:contain}}
+.splash-skip{position:absolute;top:max(14px,env(safe-area-inset-top));left:14px;border:none;border-radius:999px;background:rgba(0,0,0,.45);color:#fff;font-weight:800;font-size:15px;padding:8px 14px;font-family:inherit;backdrop-filter:blur(4px)}
 .screen{display:none;animation:pop .35s ease}
 .screen.active{display:block}
 @keyframes pop{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
@@ -303,6 +309,10 @@ h2.ttl{font-size:26px;font-weight:900;margin:4px 0}
 </style>
 </head>
 <body>
+<div id="splash" hidden>
+  <video id="splashVid" poster="video/poster.jpg" playsinline preload="none"></video>
+  <button id="splashSkip" class="splash-skip">סגור ✕</button>
+</div>
 <div class="bg-deco" aria-hidden="true">
   <span style="top:6%;left:6%">➕</span><span style="top:20%;right:4%;animation-delay:-2s">⭐</span>
   <span style="top:46%;left:3%;animation-delay:-4s">📐</span><span style="top:70%;right:7%;animation-delay:-1s">✖️</span>
@@ -487,6 +497,7 @@ function genPV(sub){
       visual:`<div class="digit-tiles">${shuffle(ds).map(x=>`<b>${x}</b>`).join('')}</div>`,answer:ans,hints:h,
       explain:`המספר ה${big?'גדול':'קטן'} ביותר הוא <b>${ans}</b>.`});
   }
+  if(sub==='wordsAny')return genPV(Math.random()<.5?'words':'toWords');
   if(sub==='words'){
     const h=R(1,9),m=R(0,5),t=m===0?0:m===1?1:R(2,9),u=Math.random()<.2?0:R(1,9),n=h*100+t*10+u;
     return numQ({key:'pw'+n,prompt:'כתבו את המספר בספרות:',visual:`<div class="wordnum">${numWords(n)}</div>`,answer:n,
@@ -896,6 +907,22 @@ function genDiv(sub){
       visual:`<div class="digit-tiles">${ds.map(x=>`<b>${x}</b>`).join('')}</div>`,choices:shuffle([...set]).map(n=>({label:String(n),value:n})),answer:right,
       hints:[LOOK,RULE[k],'נבדוק רק את הספרה האחרונה (הימנית) של כל מספר.'],
       explain:`ספרת היחידות של ${right} היא ${right%10}. ${RULE[k]} התשובה: <b>${right}</b>.`});}
+  if(sub==='buildH'){/* build from digits a number that meets two conditions */
+    let ds,all,v,good,badL;
+    for(let g=0;g<300;g++){ds=shuffle([0,1,2,3,4,5,6,7,8,9]).slice(0,4);
+      all=[];for(const x of ds)for(const y of ds)for(const z of ds)if(x&&new Set([x,y,z]).size===3)all.push(x*100+y*10+z);
+      const lim=R(3,7)*100;
+      v=P([{t:'אי-זוגי ומתחלק ב-5',ok:x=>x%10===5,near:x=>x%10===0||x%2===1},
+        {t:'מתחלק ב-2 ולא מתחלק ב-5',ok:x=>x%2===0&&x%10!==0,near:x=>x%5===0},
+        {t:`מתחלק ב-5 וגדול מ-${lim}`,ok:x=>x%5===0&&x>lim,near:x=>x%5===0||x>lim},
+        {t:`זוגי וקטן מ-${lim}`,ok:x=>x%2===0&&x<lim,near:x=>x%2===0||x<lim}]);
+      good=all.filter(v.ok);badL=all.filter(x=>!v.ok(x)&&v.near(x));
+      if(good.length&&badL.length>=3)break;}
+    const right=P(good),set=new Set([right]);while(set.size<4)set.add(P(badL));
+    return choiceQ({key:'vbh'+v.t+ds.join('')+right,prompt:`בנו מספרים מהספרות האלה (כל ספרה פעם אחת לכל היותר). איזה מספר <span class="hl">${v.t}</span>?`,
+      visual:`<div class="digit-tiles">${ds.map(x=>`<b>${x}</b>`).join('')}</div>`,choices:shuffle([...set]).map(n=>({label:String(n),value:n})),answer:right,
+      hints:['יש כאן שני תנאים – המספר צריך לעמוד בשניהם!',`${RULE[2]} ${RULE[5]}`,'נבדוק כל מספר: קודם תנאי אחד, ורק אם הוא מתאים – את התנאי השני.'],
+      explain:`רק המספר <b>${right}</b> הוא ${v.t}.`});}
   if(sub==='coins'){/* paid only with coins of k ₪ and got no change */
     const c=P([2,5,10]),G4=shuffle([['🧩','פאזל'],['🃏','קלפים'],['🎲','משחק קופסה'],['♟️','דמקה'],['🪀','יו-יו'],['🧸','דובי'],['⚽','כדור'],['🪁','עפיפון']]).slice(0,4);
     const ok=x=>x%c===0,price=m=>{let x;do{x=R(11,99)}while(ok(x)!==m);return x};
@@ -1050,7 +1077,7 @@ function genAng(sub){
       explain:`בשעה ${h}:00 המחוגים יוצרים <b>זווית ${ANG[t]}</b>. רבע שעון (3 שעות) = זווית ישרה; פחות מזה – חדה; יותר – קהה.`});}
   if(sub==='shape'||sub==='poly'){/* count right / acute / obtuse angles (computed from the drawing) */
     const [nm,pts]=P(POLY),kinds=polyAngles(pts),flip=Math.random()<.5;
-    const what=sub==='shape'?'right':P(['acute','obtuse','obtuse','all']),ans=what==='all'?pts.length:kinds.filter(k=>k===what).length;
+    const what=sub==='shape'?(Math.random()<.2?'all':'right'):P(['acute','obtuse']),ans=what==='all'?pts.length:kinds.filter(k=>k===what).length;
     const vis=`<div class="shape"><svg viewBox="0 0 200 160"><g ${flip?'transform="translate(200,0) scale(-1,1)"':''}>
       <polygon points="${pts.map(p=>p.join(',')).join(' ')}" fill="#e3f8fc" stroke="#00b8d4" stroke-width="5" stroke-linejoin="round"/>
       ${pts.map(p=>`<circle class="cdot" cx="${p[0]}" cy="${p[1]}" r="9"/>`).join('')}</g></svg></div>
@@ -1086,12 +1113,12 @@ function genAng(sub){
       choices:[{label:'גדולה יותר',value:'big'},{label:'קטנה יותר',value:'small'}],answer:ans,
       hints:['נסדר את סוגי הזוויות מהקטנה לגדולה: חדה, ישרה, קהה, שטוחה.','זווית ישרה היא כמו פינת דף. חדה – צרה ממנה, קהה – רחבה ממנה.','זווית שטוחה פתוחה עד הסוף – כמו קו ישר.'],
       explain:`הסדר מהקטנה לגדולה: חדה, ישרה, קהה, שטוחה. לכן זווית ${ANG[O[i]]} <b>${ans==='big'?'גדולה':'קטנה'}</b> יותר מזווית ${ANG[O[j]]}.`});}
-  if(sub==='extreme'){const big=Math.random()<.5,labels=['א','ב','ג'];let ds;
-    do{ds=[R(25,165),R(25,165),R(25,165)]}while(Math.min(Math.abs(ds[0]-ds[1]),Math.abs(ds[1]-ds[2]),Math.abs(ds[0]-ds[2]))<22);
+  if(sub==='extreme'||sub==='extremeH'){const big=Math.random()<.5,labels=['א','ב','ג'],hard=sub==='extremeH',[lo,hi]=hard?P([[25,82],[98,165]]):[25,165],gap=hard?12:22;let ds;
+    do{ds=[R(lo,hi),R(lo,hi),R(lo,hi)]}while(Math.min(Math.abs(ds[0]-ds[1]),Math.abs(ds[1]-ds[2]),Math.abs(ds[0]-ds[2]))<gap);
     const target=ds.indexOf(big?Math.max(...ds):Math.min(...ds)),order=[...ds].sort((a,b)=>a-b);
     const len=d=>{const r=order.indexOf(d);return big?[95,75,50][r]:[50,75,95][r]};/* misleading arm lengths */
     const vis=`<div class="angs three">${ds.map((d,i)=>`<div class="angbox"><span class="alabel">${labels[i]}</span>${angleSVG(d,R(0,3)*90+R(-20,20),len(d),len(d),['#7c4dff','#ff8a00','#00b8d4'][i],110)}</div>`).join('')}</div>`;
-    return choiceQ({key:'gx'+ds.join('_')+big,prompt:`איזו זווית היא <span class="hl">הכי ${big?'גדולה':'קטנה'}</span>?`,visual:vis,
+    return choiceQ({key:'gx'+ds.join('_')+big+hard,prompt:`איזו זווית היא <span class="hl">הכי ${big?'גדולה':'קטנה'}</span>?`,visual:vis,
       choices:labels.map((l,i)=>({label:'זווית '+l,value:i})),answer:target,c3:true,
       hints:['גודל הזווית נקבע לפי הפתיחה בין השוקיים – לא לפי האורך שלהן! 📏',`דמיינו פה של תנין 🐊: איזה פה פתוח הכי ${big?'הרבה':'מעט'}?`,'אפשר להשוות כל זווית לפינת דף.'],
       explain:`זווית ${labels[target]} ${big?'פתוחה הכי הרבה':'פתוחה הכי מעט'}, לכן היא <b>הכי ${big?'גדולה':'קטנה'}</b>. אורך השוקיים לא משנה!`});}
@@ -1109,13 +1136,13 @@ function polyAngles(p){const n=p.length;return p.map((v,i)=>{const A=p[(i+n-1)%n
 
 /* ================== topics ================== */
 const TOPICS=[
- {id:'pv',name:'המבנה העשרוני',sub:'מאות, עשרות ויחידות עד 1,000',icon:'🏰',c:'#7c4dff',cd:'#5a2fd6',gen:genPV,subs:['digit','compose','value','expand','blocks','compare','plusminus','build','words','toWords','valueWhich','between','hundreds','money'],hard:['composeH','plusminusH','compareExp','props','money']},
+ {id:'pv',name:'המבנה העשרוני',sub:'מאות, עשרות ויחידות עד 1,000',icon:'🏰',c:'#7c4dff',cd:'#5a2fd6',gen:genPV,subs:['digit','compose','value','expand','blocks','compare','plusminus','build','wordsAny','valueWhich','between','hundreds','money'],hard:['composeH','plusminusH','compareExp','props']},
  {id:'seq',name:'סדרות',sub:'מגלים את הכלל הסודי',icon:'🐾',c:'#00b8d4',cd:'#0090a8',gen:genSeq,subs:['missing','missing','next','rule','twoAhead'],hard:['missingH','twoAheadH','firstH']},
  {id:'add',name:'חיבור וחיסור',sub:'עד 100 עם המרה, עד 1,000 בלי',icon:'➕',c:'#ff8a00',cd:'#d06a00',gen:genAdd,subs:['add2','sub2','add3','sub3','missing','round','add2','sub2','jump','missing3'],hard:['chain3','mixChain','missingSub','paren','chain3d','cmpNoCalc']},
  {id:'mul',name:'כפל וחילוק',sub:'עד 100 – לוח הכפל',icon:'✖️',c:'#ff4fa3',cd:'#c2366f',gen:genMul,subs:['prod','prod','div','div','missing','array','tf','which','family','missingDiv','multipleOf','notMultiple'],hard:['chainMul','chainMD','chainMD','cmpExpr','ineqMul','commut']},
- {id:'divis',name:'סימני התחלקות',sub:'ב-2, ב-5 וב-10',icon:'🔍',c:'#22c55e',cd:'#15803d',gen:genDiv,subs:['yn','yn','which','whichNot','both','digit','build','coins'],hard:['both','notBoth','countDiv','cond','build']},
- {id:'word',name:'שאלות מילוליות',sub:'סיפורים עם מספרים',icon:'📖',c:'#ef4444',cd:'#b91c1c',gen:genWord,subs:[...WP.map((_,i)=>i),'op','op','op'],hard:[12,13,...WPH.map((_,i)=>'h'+i)]},
- {id:'ang',name:'זוויות',sub:'שיום, השוואה וסרטוט',icon:'📐',c:'#eab308',cd:'#a16207',gen:genAng,subs:['name','name','compare','pick','draw','draw','clock','shape','isAngle','name4','relation','extreme'],hard:['compareH','clock','shape','poly','poly','extreme']},
+ {id:'divis',name:'סימני התחלקות',sub:'ב-2, ב-5 וב-10',icon:'🔍',c:'#22c55e',cd:'#15803d',gen:genDiv,subs:['yn','yn','which','whichNot','both','digit','build','coins'],hard:['notBoth','countDiv','cond','buildH']},
+ {id:'word',name:'שאלות מילוליות',sub:'סיפורים עם מספרים',icon:'📖',c:'#ef4444',cd:'#b91c1c',gen:genWord,subs:[...WP.map((_,i)=>i).filter(i=>i!==12&&i!==13),'op','op','op'],hard:[12,13,...WPH.map((_,i)=>'h'+i)]},
+ {id:'ang',name:'זוויות',sub:'שיום, השוואה וסרטוט',icon:'📐',c:'#eab308',cd:'#a16207',gen:genAng,subs:['name','name','compare','pick','draw','draw','clock','shape','isAngle','name4','relation','extreme'],hard:['compareH','poly','extremeH']},
 ];
 /* n questions; the last hardN come from the topic's harder question types */
 function genN(t,n,hardN=0){
@@ -1259,7 +1286,10 @@ function renderHome(){
   $('goSettings').onclick=()=>{SFX.click();renderSettings();show('settings')};
   $('goStore').onclick=()=>{SFX.click();renderStore();show('store')};
   $('goWardrobe').onclick=()=>{SFX.click();renderWardrobe();show('wardrobe')};
-  $('homeOwl').onclick=()=>{owlMood($('homeOwl'),'happy');SFX.good()};
+  let taps=[];/* easter egg: three quick taps on the owl play the intro video */
+  $('homeOwl').onclick=()=>{owlMood($('homeOwl'),'happy');SFX.good();
+    const now=Date.now();taps=taps.filter(t=>now-t<900).concat(now);
+    if(taps.length>=3){taps=[];playSplash()}};
 }
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));scrollTo({top:0,behavior:'smooth'})}
 
@@ -1513,6 +1543,14 @@ DATA.music=false;save();
 $('prevBtn').onclick=()=>{SFX.click();skipSong(-1)};
 $('nextBtn').onclick=()=>{SFX.click();skipSong(1)};
 syncAudioBtns();
+/* easter egg video – loaded only when needed; music pauses while it plays */
+function playSplash(){const sp=$('splash'),v=$('splashVid');if(!sp.hidden)return;
+  const wasMusic=DATA.music&&!bgm.paused;if(wasMusic)bgm.pause();
+  v.src='video/splash.mp4';sp.classList.remove('out');sp.hidden=false;
+  let done=false;const end=()=>{if(done)return;done=true;sp.classList.add('out');
+    setTimeout(()=>{sp.hidden=true;v.pause();v.removeAttribute('src');v.load()},550);if(wasMusic)bgm.play().catch(()=>{})};
+  v.onended=end;v.onerror=end;$('splashSkip').onclick=end;
+  const pr=v.play();if(pr&&pr.catch)pr.catch(end);}
 renderHome();
 if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 </script>
