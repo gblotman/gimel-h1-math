@@ -166,6 +166,8 @@ button{font-family:inherit;touch-action:manipulation;cursor:pointer;color:inheri
 .shape .cdot.m{fill:#22c55e;stroke:#15803d}
 .show-corner .shape .cdot{opacity:.35}
 .shape .corner{stroke-width:2.5}
+.installrow{display:flex;align-items:center;justify-content:center;gap:10px;font-size:13px;color:var(--ink2)}
+.installrow .btn{flex:none;width:auto;padding:8px 14px;font-size:14px}
 .appver{text-align:center;font-size:11px;color:var(--ink2);opacity:.6;margin:6px 0 2px}
 .clock svg{width:min(200px,56vw);height:auto}
 .vnote{font-size:13px;color:var(--ink2);text-align:center}
@@ -1290,10 +1292,12 @@ function renderHome(){
    <button class="bigbtn" data-topic="mix">🏆 אתגר מסכם – כל הנושאים <span style="font-size:16px">${starsHTML(DATA.best.mix||0)}</span></button>
    <div class="row"><button class="btn store" id="goStore">🛍️ החנות של ינשופי</button><button class="btn ward" id="goWardrobe">👗 ארון הבגדים</button></div>
    <div class="row"><button class="btn" id="goStickers">🎁 המדבקות שלי</button><button class="btn" id="goSettings">⚙️ הגדרות</button></div>
+   ${instEvt?`<div class="installrow"><button class="btn" id="goInstall" aria-label="התקנת האפליקציה">⬇️ התקנה</button><span>ניתן לשחק גם בדפדפן</span></div>`:''}
    <p class="disclaimer">התרגילים במשחק זה עלולים להיות קשים מדי, קלים מדי, או מחוץ לחומר, וייתכן שיש בו גם באגים, אז מומלץ ללמוד את הנושאים מהחומר של הכתה ולהשתמש במשחק ככלי עזר לתרגול.</p>`;
   $('home').querySelectorAll('[data-topic]').forEach(b=>b.onclick=()=>{SFX.click();startRound(b.dataset.topic)});
   $('goStickers').onclick=()=>{SFX.click();renderStickers();show('stickers')};
   $('goSettings').onclick=()=>{SFX.click();renderSettings();show('settings')};
+  if($('goInstall'))$('goInstall').onclick=async()=>{SFX.click();const e=instEvt;if(!e)return;instEvt=null;e.prompt();try{await e.userChoice}catch(_){}renderHome()};
   $('goStore').onclick=()=>{SFX.click();renderStore();show('store')};
   $('goWardrobe').onclick=()=>{SFX.click();renderWardrobe();show('wardrobe')};
   let taps=[];/* easter egg: three quick taps on the owl play the intro video */
@@ -1467,7 +1471,8 @@ function renderStickers(){
    <div class="sgrid">${STICKERS.map(s=>DATA.stickers.includes(s)?`<div>${s}</div>`:'<div class="lock">❓</div>').join('')}</div>`;
   $('stBack').onclick=()=>{renderHome();show('home')};
 }
-const APP_VERSION='v20'; /* keep in sync with VERSION in sw.js */
+let instEvt=null;
+const APP_VERSION='v21'; /* keep in sync with VERSION in sw.js */
 function renderSettings(){const S=DATA.settings;
   $('settings').innerHTML=`<div class="topbar"><button class="xbtn" id="setBack" aria-label="חזרה לתפריט">✕</button><h2 class="ttl">⚙️ הגדרות</h2></div>
    <div class="setcard"><h3>📚 רמת השאלות בנושאים</h3><p>בכל סיבוב של נושא יש 10 שאלות.</p>
@@ -1564,6 +1569,9 @@ function playSplash(){const sp=$('splash'),v=$('splashVid');if(!sp.hidden)return
   v.onended=end;v.onerror=end;$('splashSkip').onclick=end;
   const pr=v.play();if(pr&&pr.catch)pr.catch(end);}
 renderHome();
+/* PWA install button: shown on the home screen only when the browser offers installation */
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();instEvt=e;if($('home').classList.contains('active'))renderHome()});
+window.addEventListener('appinstalled',()=>{instEvt=null;if($('home').classList.contains('active'))renderHome()});
 if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 </script>
 </body>
