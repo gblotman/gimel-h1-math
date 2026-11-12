@@ -256,6 +256,8 @@ h2.ttl{font-size:26px;font-weight:900;margin:4px 0}
 .rov .mbox{text-align:center}
 .rov .rowl{width:96px;margin:0 auto 6px}
 .rov .rowl svg{width:100%;display:block}
+.rov .brow{stroke:#2d2250;stroke-width:4.5;stroke-linecap:round;fill:none}
+.rov .pup{transform:translateY(3px)}
 .rov .tear{fill:#4fc3f7;stroke:#0277bd;stroke-width:1.5;animation:teardrop 1.6s ease-in infinite}
 @keyframes teardrop{0%{transform:translateY(-6px);opacity:0}20%{opacity:1;transform:translateY(0)}75%{opacity:1}100%{transform:translateY(26px);opacity:0}}
 .rov .rbtns{display:flex;gap:10px;margin-top:14px}
@@ -1503,7 +1505,7 @@ const RESET_STEPS=[
   {t:'בטוחים שרוצים לאפס? 😢',p:'כל ההתקדמות, התלבושות, המדבקות והמטבעות יאבדו לנצח!',yes:'כן, לאפס',no:'אין סיכוי!'},
   {t:'אל תעשו את זה! 😭',p:'תחשבו על כל העבודה שעשיתם! על כל הכוכבים ועל כל המדבקות...',yes:'כן, אני בטוח',no:'לא, אני לא רוצה לאפס'},
   {t:'הזדמנות אחרונה להתחרט! 🥺',p:'כל ההתקדמות תלך לאבדון. זה סופי, אי אפשר לשחזר!',yes:'כן, סופי!',no:'לא רוצה לאפס!'}];
-const owlCrying=()=>owlSVG().replace(/<\/g><\/svg>$/,'<path class="tear" d="M34 66 q-7 11 0 16 q7 -5 0 -16 Z"/><path class="tear" style="animation-delay:.8s" d="M86 66 q-7 11 0 16 q7 -5 0 -16 Z"/></g></svg>');
+const owlCrying=()=>owlSVG().replace(/<\/g><\/svg>$/,'<path class="brow" d="M28 44 L55 34 M92 44 L65 34"/><path class="tear" d="M34 66 q-7 11 0 16 q7 -5 0 -16 Z"/><path class="tear" style="animation-delay:.8s" d="M86 66 q-7 11 0 16 q7 -5 0 -16 Z"/></g></svg>');
 function closeResetOverlays(){document.querySelectorAll('.rov').forEach(e=>e.remove())}
 function resetStep(i){const st=RESET_STEPS[i],ov=document.createElement('div');ov.className='modal rov';ov.style.zIndex=90+i;
   ov.innerHTML=`<div class="mbox"><div class="rowl">${owlCrying()}</div><h3>${st.t}</h3><p>${st.p}</p>
