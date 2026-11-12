@@ -1041,7 +1041,7 @@ function genAng(sub){
     const big=d1>d2?1:2;const longArms=(hard||Math.random()<.65)?(big===1?2:1):(big);
     const L=i=>i===longArms?R(90,110):R(45,60);
     const ans=eqCase?'eq':d1>d2?'a':'b';
-    const vis=`<div class="angs"><div class="angbox"><span class="alabel">א</span>${angleSVG(d1,R(0,3)*90+R(-20,20),L(1),L(1),'#ff4fa3',118)}</div><div class="angbox"><span class="alabel">ב</span>${angleSVG(d2,R(0,3)*90+R(-20,20),L(2),L(2),'#00b8d4',118)}</div></div>`;
+    const vis=`<div class="vcol corner-scope"><div class="angs"><div class="angbox"><span class="alabel">א</span>${angleSVG(d1,R(0,3)*90+R(-20,20),L(1),L(1),'#ff4fa3',118)}</div><div class="angbox"><span class="alabel">ב</span>${angleSVG(d2,R(0,3)*90+R(-20,20),L(2),L(2),'#00b8d4',118)}</div></div>${cornerBtn}</div>`;
     return choiceQ({key:'gc'+d1+'_'+d2,prompt:'איזו זווית <span class="hl">גדולה יותר</span>?',visual:vis,
       choices:[{label:'זווית א',value:'a'},{label:'זווית ב',value:'b'},{label:'הן שוות',value:'eq'}],answer:ans,c3:true,
       hints:['גודל הזווית נקבע לפי הפתיחה בין שתי הקרניים – לא לפי האורך שלהן! 📏','דמיינו שהזוויות הן פה של תנין 🐊: איזה פה פתוח יותר?','אפשר להשוות כל זווית לפינת דף: מי צרה ממנה ומי רחבה ממנה?'],
@@ -1120,7 +1120,7 @@ function genAng(sub){
     do{ds=[R(lo,hi),R(lo,hi),R(lo,hi)]}while(Math.min(Math.abs(ds[0]-ds[1]),Math.abs(ds[1]-ds[2]),Math.abs(ds[0]-ds[2]))<gap);
     const target=ds.indexOf(big?Math.max(...ds):Math.min(...ds)),order=[...ds].sort((a,b)=>a-b);
     const len=d=>{const r=order.indexOf(d);return big?[95,75,50][r]:[50,75,95][r]};/* misleading arm lengths */
-    const vis=`<div class="angs three">${ds.map((d,i)=>`<div class="angbox"><span class="alabel">${labels[i]}</span>${angleSVG(d,R(0,3)*90+R(-20,20),len(d),len(d),['#7c4dff','#ff8a00','#00b8d4'][i],110)}</div>`).join('')}</div>`;
+    const vis=`<div class="vcol corner-scope"><div class="angs three">${ds.map((d,i)=>`<div class="angbox"><span class="alabel">${labels[i]}</span>${angleSVG(d,R(0,3)*90+R(-20,20),len(d),len(d),['#7c4dff','#ff8a00','#00b8d4'][i],110)}</div>`).join('')}</div>${cornerBtn}</div>`;
     return choiceQ({key:'gx'+ds.join('_')+big+hard,prompt:`איזו זווית היא <span class="hl">הכי ${big?'גדולה':'קטנה'}</span>?`,visual:vis,
       choices:labels.map((l,i)=>({label:'זווית '+l,value:i})),answer:target,c3:true,
       hints:['גודל הזווית נקבע לפי הפתיחה בין השוקיים – לא לפי האורך שלהן! 📏',`דמיינו פה של תנין 🐊: איזה פה פתוח הכי ${big?'הרבה':'מעט'}?`,'אפשר להשוות כל זווית לפינת דף.'],
