@@ -166,6 +166,7 @@ button{font-family:inherit;touch-action:manipulation;cursor:pointer;color:inheri
 .shape .cdot.m{fill:#22c55e;stroke:#15803d}
 .show-corner .shape .cdot{opacity:.35}
 .shape .corner{stroke-width:2.5}
+.appver{text-align:center;font-size:11px;color:var(--ink2);opacity:.6;margin:6px 0 2px}
 .clock svg{width:min(200px,56vw);height:auto}
 .vnote{font-size:13px;color:var(--ink2);text-align:center}
 .wordnum{font-size:clamp(22px,6vw,32px);font-weight:900;color:var(--purple);text-align:center;background:#f3efff;border:3px dashed #c9bbff;border-radius:18px;padding:12px 18px;line-height:1.4}
@@ -1466,12 +1467,14 @@ function renderStickers(){
    <div class="sgrid">${STICKERS.map(s=>DATA.stickers.includes(s)?`<div>${s}</div>`:'<div class="lock">❓</div>').join('')}</div>`;
   $('stBack').onclick=()=>{renderHome();show('home')};
 }
+const APP_VERSION='v20'; /* keep in sync with VERSION in sw.js */
 function renderSettings(){const S=DATA.settings;
   $('settings').innerHTML=`<div class="topbar"><button class="xbtn" id="setBack" aria-label="חזרה לתפריט">✕</button><h2 class="ttl">⚙️ הגדרות</h2></div>
    <div class="setcard"><h3>📚 רמת השאלות בנושאים</h3><p>בכל סיבוב של נושא יש 10 שאלות.</p>
     <div class="seg"><button data-level="classic" class="${S.level==='classic'?'on':''}">🙂 רגילה<small>כל 10 השאלות ברמה רגילה</small></button>
      <button data-level="challenge" class="${S.level==='challenge'?'on':''}">💪 עם אתגר<small>3 השאלות האחרונות קשות יותר</small></button></div></div>
-   <div class="setcard" id="mixCard"></div>`;
+   <div class="setcard" id="mixCard"></div>
+   <div class="appver">גרסה ${APP_VERSION}</div>`;
   $('setBack').onclick=()=>{SFX.click();renderHome();show('home')};
   $('settings').querySelectorAll('[data-level]').forEach(b=>b.onclick=()=>{S.level=b.dataset.level;save();SFX.click();renderSettings()});
   renderMixCard();
