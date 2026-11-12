@@ -1,5 +1,5 @@
 // Bump VERSION when deploying changes so clients refresh the cache.
-const VERSION = 'v18';
+const VERSION = 'v19';
 const CACHE = 'owl-math-' + VERSION;
 const CORE = ['./', 'index.html', 'manifest.webmanifest', 'favicon.svg',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];
