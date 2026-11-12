@@ -250,6 +250,18 @@ h2.ttl{font-size:26px;font-weight:900;margin:4px 0}
 .tabs label.on{background:var(--purple);color:#fff}
 
 /* settings */
+.resetcard{margin-top:18px;text-align:center}
+.btn.danger{background:#fff;color:#c0264b;box-shadow:0 4px 0 rgba(192,38,75,.25);border:2px solid #f3b6c6;width:100%}
+.rov{z-index:90;text-align:center}
+.rov .mbox{text-align:center}
+.rov .rowl{width:96px;margin:0 auto 6px}
+.rov .rowl svg{width:100%;display:block}
+.rov .tear{fill:#4fc3f7;stroke:#0277bd;stroke-width:1.5;animation:teardrop 1.6s ease-in infinite}
+@keyframes teardrop{0%{transform:translateY(-6px);opacity:0}20%{opacity:1;transform:translateY(0)}75%{opacity:1}100%{transform:translateY(26px);opacity:0}}
+.rov .rbtns{display:flex;gap:10px;margin-top:14px}
+.rov .rbtns .btn{flex:1}
+.rov .btn.no{background:var(--green);color:#fff;box-shadow:0 5px 0 var(--greend)}
+.rov .btn.yes{background:#fff;color:#c0264b;box-shadow:0 4px 0 rgba(192,38,75,.25);border:2px solid #f3b6c6}
 .setcard{background:#fff;border-radius:20px;padding:14px 16px;margin-top:12px;box-shadow:0 4px 0 rgba(45,34,80,.08)}
 .setcard h3{margin:0 0 4px;font-size:19px;font-weight:900}
 .setcard p{margin:0 0 10px;color:var(--ink2);font-size:14px;line-height:1.45}
@@ -1472,18 +1484,35 @@ function renderStickers(){
   $('stBack').onclick=()=>{renderHome();show('home')};
 }
 let instEvt=null;
-const APP_VERSION='v21'; /* keep in sync with VERSION in sw.js */
+const APP_VERSION='v22'; /* keep in sync with VERSION in sw.js */
 function renderSettings(){const S=DATA.settings;
   $('settings').innerHTML=`<div class="topbar"><button class="xbtn" id="setBack" aria-label="חזרה לתפריט">✕</button><h2 class="ttl">⚙️ הגדרות</h2></div>
    <div class="setcard"><h3>📚 רמת השאלות בנושאים</h3><p>בכל סיבוב של נושא יש 10 שאלות.</p>
     <div class="seg"><button data-level="classic" class="${S.level==='classic'?'on':''}">🙂 רגילה<small>כל 10 השאלות ברמה רגילה</small></button>
      <button data-level="challenge" class="${S.level==='challenge'?'on':''}">💪 עם אתגר<small>3 השאלות האחרונות קשות יותר</small></button></div></div>
    <div class="setcard" id="mixCard"></div>
+   <div class="setcard resetcard"><button class="btn danger" id="resetGame">🗑️ איפוס משחק</button></div>
    <div class="appver">גרסה ${APP_VERSION}</div>`;
   $('setBack').onclick=()=>{SFX.click();renderHome();show('home')};
   $('settings').querySelectorAll('[data-level]').forEach(b=>b.onclick=()=>{S.level=b.dataset.level;save();SFX.click();renderSettings()});
+  $('resetGame').onclick=()=>{SFX.click();resetStep(0)};
   renderMixCard();
 }
+/* ---- game reset: three stacked, increasingly dramatic confirmations ---- */
+const RESET_STEPS=[
+  {t:'בטוחים שרוצים לאפס? 😢',p:'כל ההתקדמות, התלבושות, המדבקות והמטבעות יאבדו לנצח!',yes:'כן, לאפס',no:'אין סיכוי!'},
+  {t:'אל תעשו את זה! 😭',p:'תחשבו על כל העבודה שעשיתם! על כל הכוכבים ועל כל המדבקות...',yes:'כן, אני בטוח',no:'לא, אני לא רוצה לאפס'},
+  {t:'הזדמנות אחרונה להתחרט! 🥺',p:'כל ההתקדמות תלך לאבדון. זה סופי, אי אפשר לשחזר!',yes:'כן, סופי!',no:'לא רוצה לאפס!'}];
+const owlCrying=()=>owlSVG().replace(/<\/g><\/svg>$/,'<path class="tear" d="M34 66 q-7 11 0 16 q7 -5 0 -16 Z"/><path class="tear" style="animation-delay:.8s" d="M86 66 q-7 11 0 16 q7 -5 0 -16 Z"/></g></svg>');
+function closeResetOverlays(){document.querySelectorAll('.rov').forEach(e=>e.remove())}
+function resetStep(i){const st=RESET_STEPS[i],ov=document.createElement('div');ov.className='modal rov';ov.style.zIndex=90+i;
+  ov.innerHTML=`<div class="mbox"><div class="rowl">${owlCrying()}</div><h3>${st.t}</h3><p>${st.p}</p>
+   <div class="rbtns"><button class="btn yes" data-y>${st.yes}</button><button class="btn no" data-n>${st.no}</button></div></div>`;
+  document.body.appendChild(ov);const o=ov.querySelector('.owl');if(o)o.classList.add('sad');
+  ov.querySelector('[data-n]').onclick=()=>{SFX.click();closeResetOverlays()};
+  ov.querySelector('[data-y]').onclick=()=>{SFX.click();if(i<RESET_STEPS.length-1)resetStep(i+1);else doReset()};
+  ov.onclick=e=>{if(e.target===ov)closeResetOverlays()}}
+function doReset(){try{localStorage.removeItem(STORE_KEY)}catch(e){}closeResetOverlays();location.reload()}
 function renderMixCard(changed=[]){const S=DATA.settings,N=S.mixN,H=Math.min(S.mixHard,7,N),first=N-H+1;
   const pills=(key,vals,cur,cls='')=>`<div class="npills ${cls}" style="--cols:${vals.length}">${vals.map(v=>`<button data-${key}="${v}" class="${v===cur?'on':''} ${v===0?'none':''}">${v===0?'בלי':v}</button>`).join('')}</div>`;
   $('mixCard').innerHTML=`<h3>🏆 האתגר המסכם</h3>
