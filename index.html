@@ -177,6 +177,7 @@ button{font-family:inherit;touch-action:manipulation;cursor:pointer;color:inheri
 .wallet{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;max-width:460px;direction:ltr;background:#fff7d6;border:3px solid var(--yellow);border-radius:20px;padding:12px}
 .wallet .note{display:grid;place-items:center;width:74px;height:40px;border-radius:8px;font-weight:900;font-size:18px;color:#fff;box-shadow:0 3px 0 rgba(0,0,0,.18);border:2px solid rgba(255,255,255,.6)}
 .wallet .m100{background:#e0a800}.wallet .m50{background:#22a06b}.wallet .m20{background:#e25b5b}
+.coin-ic{width:1.05em;height:1.05em;vertical-align:-.17em;display:inline-block}
 .wallet .coin{display:grid;place-items:center;border-radius:50%;font-weight:900;color:#5a4400;box-shadow:0 3px 0 rgba(0,0,0,.18);border:3px solid #c9a227;background:radial-gradient(circle at 35% 30%,#fff6c2,#f2cc4a)}
 .wallet .m10{width:46px;height:46px;font-size:17px}.wallet .m5{width:42px;height:42px;font-size:16px}.wallet .m2{width:36px;height:36px;font-size:15px}.wallet .m1{width:32px;height:32px;font-size:14px;border-color:#a8a8a8;background:radial-gradient(circle at 35% 30%,#fff,#cfcfcf);color:#444}
 
@@ -346,7 +347,7 @@ h2.ttl{font-size:26px;font-weight:900;margin:4px 0}
       <button class="xbtn" id="quit" aria-label="חזרה לתפריט">✕</button>
       <div class="tname" id="tname"></div>
       <span class="streak" id="streak"></span>
-      <span class="chip">🪙 <span id="gcoins">0</span></span>
+      <span class="chip"><svg class="coin-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10.5" fill="#f2cc4a" stroke="#c9a227" stroke-width="2"/><circle cx="12" cy="12" r="6.5" fill="none" stroke="#c9a227" stroke-width="1.6"/><path d="M8.5 8.5 Q12 6.5 15 8" stroke="#fff6c2" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg> <span id="gcoins">0</span></span>
     </div>
     <div class="progress" id="progress"></div>
     <div class="qcard">
@@ -379,6 +380,7 @@ const fmt=n=>n>=1000?n.toLocaleString('en-US'):String(n);
 const $=id=>document.getElementById(id);
 const digits=n=>[Math.floor(n/100)%10,Math.floor(n/10)%10,n%10];
 
+const COIN='<svg class="coin-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10.5" fill="#f2cc4a" stroke="#c9a227" stroke-width="2"/><circle cx="12" cy="12" r="6.5" fill="none" stroke="#c9a227" stroke-width="1.6"/><path d="M8.5 8.5 Q12 6.5 15 8" stroke="#fff6c2" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>';
 const STORE_KEY='mathQuest3_v1';
 function loadData(){try{return JSON.parse(localStorage.getItem(STORE_KEY)||'{}')}catch(e){return{}}}
 let DATA=Object.assign({best:{},coins:0,stickers:[],tables:[1,2,3,4,5,6,7,8,9,10],sound:true,music:false,recent:{},owned:[],outfit:{}},loadData());
@@ -944,7 +946,7 @@ function genDiv(sub){
       hints:['יש כאן שני תנאים – המספר צריך לעמוד בשניהם!',`${RULE[2]} ${RULE[5]}`,'נבדוק כל מספר: קודם תנאי אחד, ורק אם הוא מתאים – את התנאי השני.'],
       explain:`רק המספר <b>${right}</b> הוא ${v.t}.`});}
   if(sub==='coins'){/* paid only with coins of k ₪ and got no change */
-    const c=P([2,5,10]),G4=shuffle([['🧩','פאזל'],['🃏','קלפים'],['🎲','משחק קופסה'],['♟️','דמקה'],['🪀','יו-יו'],['🧸','דובי'],['⚽','כדור'],['🪁','עפיפון']]).slice(0,4);
+    const c=P([2,5,10]),G4=shuffle([['🧩','פאזל'],['🃏','קלפים'],['🎲','משחק קופסה'],['♟️','דמקה'],['🥁','תוף'],['🧸','דובי'],['⚽','כדור'],['🎈','בלון']]).slice(0,4);
     const ok=x=>x%c===0,price=m=>{let x;do{x=R(11,99)}while(ok(x)!==m);return x};
     const prices=[price(true)];while(prices.length<4){const x=price(false);if(!prices.includes(x))prices.push(x)}
     const p=per();
@@ -1301,7 +1303,7 @@ function renderHome(){
    <header class="hero"><div class="owl-wrap" id="homeOwl">${owlSVG()}</div>
     <div><h1>פרופסור ינשופי</h1><p>מתאמנים למבחן של כיתה ג׳ עם ינשופי 🦉</p></div></header>
    <div class="bubble-home">${d>0?`היי! נשארו עוד <b>${d} ימים</b> למבחן. `:''}בחרו נושא – בכל סיבוב 10 שאלות חדשות. אם נתקעים, לוחצים על 💡 עזרה!</div>
-   <div class="stats"><span class="chip">⭐ ${total}/${(TOPICS.length+1)*3}</span><span class="chip">🪙 ${DATA.coins}</span><span class="chip">🎁 ${DATA.stickers.length}/${STICKERS.length}</span>${d>0?`<span class="chip count">📅 עוד ${d} ימים</span>`:''}</div>
+   <div class="stats"><span class="chip">⭐ ${total}/${(TOPICS.length+1)*3}</span><span class="chip">${COIN} ${DATA.coins}</span><span class="chip">🎁 ${DATA.stickers.length}/${STICKERS.length}</span>${d>0?`<span class="chip count">📅 עוד ${d} ימים</span>`:''}</div>
    <div class="topics">${TOPICS.map(t=>`<button class="tcard" style="--c:${t.c};--cd:${t.cd}" data-topic="${t.id}">
      <span class="ic">${t.icon}</span><span class="nm">${t.name}</span><span class="sb">${t.sub}</span><div class="st">${starsHTML(DATA.best[t.id]||0)}</div></button>`).join('')}</div>
    <button class="bigbtn" data-topic="mix">🏆 אתגר מסכם – כל הנושאים <span style="font-size:16px">${starsHTML(DATA.best.mix||0)}</span></button>
@@ -1344,7 +1346,7 @@ function renderQ(){
   const q=G_.qs[G_.i];q.attempts=0;q.hintsShown=0;q.done=false;
   q.max=q.type==='choice'&&q.choices.length<=2?1:2;
   const tp=TOPICS.find(t=>t.id===q.topic);
-  $('qnum').innerHTML=`שאלה ${G_.i+1} מתוך ${G_.qs.length}`+(G_.tid==='mix'?` · ${tp.icon} ${tp.name}`:'')+(q.hard?`<span class="hardtag">💪 שאלת אתגר · עד ${PTS.hard[0]} 🪙</span>`:'');
+  $('qnum').innerHTML=`שאלה ${G_.i+1} מתוך ${G_.qs.length}`+(G_.tid==='mix'?` · ${tp.icon} ${tp.name}`:'')+(q.hard?`<span class="hardtag">💪 שאלת אתגר · עד ${PTS.hard[0]} ${COIN}</span>`:'');
   $('prompt').innerHTML=q.prompt;$('visual').innerHTML=q.visual||'';$('hints').innerHTML='';fitBig();
   $('feedback').classList.add('hidden');$('gcoins').textContent=DATA.coins+G_.score;
   updHintBtn();renderProgress();renderAnswer(q);
@@ -1395,7 +1397,7 @@ function submit(v,btn){
     q.done=true;const pts=ptsOf(q)[q.attempts===1?0:1];G_.score+=pts;G_.correct++;if(q.attempts===1){G_.first++;G_.streak++}else G_.streak=0;
     G_.res[G_.i]=q.attempts===1?'ok':'half';
     if(btn)btn.classList.add('right');
-    SFX.good();say(P(MSG.good),'happy');floatPlus('+'+pts+' 🪙',btn||$('answerArea'));
+    SFX.good();say(P(MSG.good),'happy');floatPlus('+'+pts+' '+COIN,btn||$('answerArea'));
     if(G_.streak>0&&G_.streak%3===0)confetti(60,.5,.3);else confetti(28,.5,.45);
     feedback(true,`${P(MSG.good)}${G_.streak>=3?` &nbsp;🔥 ${G_.streak} ברצף!`:''}`,'');
   }else{
@@ -1416,7 +1418,7 @@ function submit(v,btn){
   }
   updHintBtn();renderProgress();
 }
-function floatPlus(txt,el){const r=el.getBoundingClientRect();const d=document.createElement('div');d.className='plus';d.textContent=txt;
+function floatPlus(txt,el){const r=el.getBoundingClientRect();const d=document.createElement('div');d.className='plus';d.innerHTML=txt;
   d.style.left=(r.left+r.width/2-40)+'px';d.style.top=(r.top-10)+'px';document.body.appendChild(d);setTimeout(()=>d.remove(),1000);$('gcoins').textContent=DATA.coins+G_.score}
 function feedback(good,title,body){const f=$('feedback');f.className='feedback '+(good?'good':'bad');
   /* question is over: hide the keypad / check button so the feedback sits right under the answer */
@@ -1471,7 +1473,7 @@ function endRound(){
   $('end').innerHTML=`<div class="endcard"><div class="owl-wrap" id="endOwl">${owlSVG()}</div>
     <div class="bigstars">${[0,1,2].map(i=>`<span class="${i<stars?'':'star-off'}">⭐</span>`).join('')}</div>
     <h2>${G_.correct} מתוך ${n} תשובות נכונות</h2>
-    <p>${G_.first} מהן כבר בניסיון הראשון · הרווחתם 🪙 ${G_.score}</p>
+    <p>${G_.first} מהן כבר בניסיון הראשון · הרווחתם ${COIN} ${G_.score}</p>
     <p style="font-weight:700;color:var(--ink)">${msg}</p>
     ${newSt?`<div class="newsticker">קיבלתם מדבקה חדשה לאוסף!<span class="em">${newSt}</span></div>`:''}
     <div class="row"><button class="btn primary" id="again">🔁 עוד סיבוב (שאלות חדשות)</button><button class="btn" id="toMenu">🏠 לתפריט</button></div></div>`;
@@ -1487,7 +1489,7 @@ function renderStickers(){
   $('stBack').onclick=()=>{renderHome();show('home')};
 }
 let instEvt=null;
-const APP_VERSION='v24'; /* keep in sync with VERSION in sw.js */
+const APP_VERSION='v25'; /* keep in sync with VERSION in sw.js */
 function renderSettings(){const S=DATA.settings;
   $('settings').innerHTML=`<div class="topbar"><button class="xbtn" id="setBack" aria-label="חזרה לתפריט">✕</button><h2 class="ttl">⚙️ הגדרות</h2></div>
    <div class="setcard"><h3>📚 רמת השאלות בנושאים</h3><p>בכל סיבוב של נושא יש 10 שאלות.</p>
@@ -1538,10 +1540,10 @@ function renderStore(msg){
     return `<div class="scard"><div class="shead">${c.icon} ${c.name}</div>
       <div class="sowl">${owlSVG(Object.assign({},DATA.outfit,{[c.id]:next.id}))}</div>
       <div class="sname">${next.name}</div>${progDots(c.id)}
-      <button class="btn ${can?'green':''}" data-buy="${next.id}" ${can?'':'disabled'}>${can?`קנייה · 🪙 ${next.price}`:`🪙 ${next.price} · חסרים עוד ${next.price-DATA.coins}`}</button></div>`}).join('');
-  $('store').innerHTML=`<div class="topbar"><button class="xbtn" id="shBack" aria-label="חזרה לתפריט">✕</button><h2 class="ttl">🛍️ החנות של ינשופי</h2><span class="chip">🪙 ${DATA.coins}</span></div>
+      <button class="btn ${can?'green':''}" data-buy="${next.id}" ${can?'':'disabled'}>${can?`קנייה · ${COIN} ${next.price}`:`${COIN} ${next.price} · חסרים עוד ${next.price-DATA.coins}`}</button></div>`}).join('');
+  $('store').innerHTML=`<div class="topbar"><button class="xbtn" id="shBack" aria-label="חזרה לתפריט">✕</button><h2 class="ttl">🛍️ החנות של ינשופי</h2><span class="chip">${COIN} ${DATA.coins}</span></div>
    <div class="stop"><div class="owl-wrap" id="shOwl">${owlSVG()}</div></div>
-   <div class="bubble-home">${msg||'אספו מטבעות 🪙 בתשובות נכונות וקנו לי בגדים חדשים! אחרי כל קנייה יופיע פריט חדש בחנות.'}</div>
+   <div class="bubble-home">${msg||'אספו מטבעות '+COIN+' בתשובות נכונות וקנו לי בגדים חדשים! אחרי כל קנייה יופיע פריט חדש בחנות.'}</div>
    <div class="shopgrid">${cards}</div>
    <div class="row"><button class="btn ward" id="shWard">👗 לארון הבגדים</button></div>`;
   $('shBack').onclick=()=>{SFX.click();renderHome();show('home')};

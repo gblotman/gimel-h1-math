@@ -1,6 +1,6 @@
 // Bump VERSION when deploying changes so clients refresh the cache.
 // Also update APP_VERSION in index.html (shown on the settings screen).
-const VERSION = 'v24';
+const VERSION = 'v25';
 const CACHE = 'owl-math-' + VERSION;
 const CORE = ['./', 'index.html', 'manifest.webmanifest', 'favicon.svg',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];
